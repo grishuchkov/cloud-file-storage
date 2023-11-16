@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  postgres:
+    container_name: cloud-file-storage
+    image: postgres:13-alpine
+    environment:
+      - POSTGRES_DB=cloud-file-storage
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+    ports:
+      - "5440:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+
+volumes:
+  dbdata:
+
