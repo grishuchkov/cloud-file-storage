@@ -33,12 +33,12 @@
                             </div>
 
                             <div>
-                                <label class="mb-2 text-muted" for="name">Username:</label>
+                                <label class="mb-2 text-muted" for="name">Login:</label>
 
-                                <input type="text" id="name" th:field="*{username}" class="form-control" required
+                                <input type="text" id="name" th:field="*{login}" class="form-control" required
                                        autofocus>
 
-                                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                                <div th:if="${#fields.hasErrors('login')}" th:errors="*{login}">
                                     Username is invalid
                                 </div>
 
