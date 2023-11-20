@@ -14,42 +14,66 @@
         <div class="row justify-content-sm-center h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
                 <div class="text-center my-5">
-                    <img src="https://img.icons8.com/external-phatplus-lineal-color-phatplus/256/external-file-big-data-phatplus-lineal-color-phatplus.png" alt="logo" width="150">
+                    <img src="https://img.icons8.com/external-phatplus-lineal-color-phatplus/256/external-file-big-data-phatplus-lineal-color-phatplus.png"
+                         alt="logo" width="150">
                 </div>
                 <div class="card shadow-lg">
                     <div class="card-body p-5">
                         <h1 class="fs-4 card-title fw-bold mb-4 text-center">REGISTRATION</h1>
-                        <form method="POST" class="needs-validation" novalidate="" autocomplete="off">
-                            <div class="mb-3">
-                                <label class="mb-2 text-muted" for="name">Username</label>
-                                <input id="name" type="text" class="form-control" name="username" value="" required
-                                       autofocus>
-                                <div class="invalid-feedback">
-                                    Username is required
+
+                        <form th:method="POST" th:action="@{/register}" th:object="${UserRegistration}"
+                              class="needs-validation" autocomplete="off">
+
+
+                            <div th:if="${#fields.hasErrors('*')}">
+                                <div class="alert alert-danger" role="alert">
+                                    <p th:each="err : ${#fields.errors('*')}" th:text="${err}" class="text-center">
+                                        Error</p>
                                 </div>
                             </div>
 
+                            <div>
+                                <label class="mb-2 text-muted" for="name">Username:</label>
+
+                                <input type="text" id="name" th:field="*{username}" class="form-control" required
+                                       autofocus>
+
+                                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}">
+                                    Username is invalid
+                                </div>
+
+                            </div>
+
                             <div class="mb-3">
-                                <label class="mb-2 text-muted" for="email">E-Mail Address</label>
-                                <input id="email" type="email" class="form-control" name="email" value="" required>
-                                <div class="invalid-feedback">
+                                <label class="mb-2 text-muted" for="email">E-Mail Address:</label>
+
+                                <input type="text" id="email" th:field="*{email}" class="form-control" required
+                                       autofocus>
+
+                                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
                                     Email is invalid
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="mb-2 text-muted" for="password">Password</label>
-                                <input id="password" type="password" class="form-control" name="password" required>
-                                <div class="invalid-feedback">
-                                    Password is required
+                                <label class="mb-2 text-muted" for="password">Password:</label>
+                                <input type="password" id="password" th:field="*{password}" class="form-control"
+                                       required
+                                       autofocus>
+
+                                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                    Password is invalid:
                                 </div>
                             </div>
 
                             <div class="mb-3">
-                                <label class="mb-2 text-muted" for="password-confirm">Password confirm</label>
-                                <input id="password-confirm" type="password" class="form-control" name="password-confirm" required>
-                                <div class="invalid-feedback">
-                                    Password is required
+                                <label class="mb-2 text-muted" for="password-confirm">Password confirmation:</label>
+                                <input type="password" id="password-confirm" th:field="*{passwordConfirm}"
+                                       class="form-control" required
+                                       autofocus>
+
+                                <div th:if="${#fields.hasErrors('passwordConfirm')}" th:errors="*{passwordConfirm}">
+                                    Password is invalid:
                                 </div>
                             </div>
 
