@@ -9,7 +9,7 @@ import ru.grishuchkov.cloudfilestorage.util.validate.PasswordMatches;
 @PasswordMatches
 public class UserRegistration {
     private String email;
-    private String username;
+    private String login;
     private String password;
     private String passwordConfirm;
 }

@@ -1,6 +1,7 @@
 package ru.grishuchkov.cloudfilestorage.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,12 +11,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.grishuchkov.cloudfilestorage.dto.UserRegistration;
+import ru.grishuchkov.cloudfilestorage.service.UserService;
 
 import java.security.Principal;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/")
 public class UserController {
+
+    private final UserService userService;
 
     @GetMapping({"/", "/login"})
     public String getLoginPage(@AuthenticationPrincipal Principal principal) {
@@ -39,6 +44,8 @@ public class UserController {
         if (bindingResult.hasErrors()) {
             return "register";
         }
+
+        userService.registration(userRegistration);
 
         return "redirect:login";
     }
