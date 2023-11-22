@@ -1,0 +1,74 @@
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Test html</title>
+</head>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light mb-10">
+    <div class="container-md">
+        <a class="navbar-brand" href="#">Navbar</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Link</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                </li>
+            </ul>
+
+            <div class="d-flex" th:if="${#authorization.expression('isAuthenticated()')}">
+                <form class="d-flex mb-2 mb-lg-0">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+
+                <form class="d-flex ms-2 mb-2 mb-lg-0" action="#" th:action="@{/logout}" method="POST">
+                    <button type="submit" class="btn btn-outline-danger">Log out</button>
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                </form>
+            </div>
+
+            <div class="d-flex" th:unless="${#authorization.expression('isAuthenticated()')}">
+                <form class="p-1 bd-highlight mb-2 mb-lg-0" action="#" th:action="@{/login}" method="GET">
+                    <button type="submit" class="btn btn-success">Login</button>
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                </form>
+                <form class="p-1 bd-highlight d-flex mb-2 mb-lg-0" action="#" th:action="@{/register}" method="GET">
+                    <button type="submit" class="btn btn-success">Register</button>
+                    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<body>
+<div class="container text-center">
+    <div class="row">
+        <div th:if="${#authorization.expression('isAuthenticated()')}">
+            Привет, <span th:text="${#authentication.name}">пользователь</span>!
+        </div>
+
+        <div th:unless="${#authorization.expression('isAuthenticated()')}">
+            Пожалуйста, <a href="/login">войдите</a>.
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+</body>
+</html>
