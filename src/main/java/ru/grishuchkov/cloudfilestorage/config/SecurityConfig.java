@@ -3,7 +3,6 @@ package ru.grishuchkov.cloudfilestorage.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -30,19 +29,22 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests
                         (authorize -> authorize
-                                .requestMatchers("/register","/login")
-                                .anonymous()
+                                .requestMatchers("/register", "/login").permitAll()
+                                .requestMatchers("/home", "/").permitAll()
+                                .requestMatchers("/logout").permitAll()
                                 .anyRequest().authenticated()
                         )
                 .formLogin
                         (login -> login
                                 .loginPage("/login")
-                                .defaultSuccessUrl("/home")
-                                .usernameParameter("username")
+                                .defaultSuccessUrl("/home", true)
+                                .usernameParameter("login")
                         )
                 .logout
-                        (logout -> {
-                        })
+                        (logout -> logout
+                                .logoutSuccessUrl("/home")
+                                .invalidateHttpSession(true)
+                        )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .build();
     }
