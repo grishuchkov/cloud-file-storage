@@ -1,2 +1,2 @@
-INSERT INTO users (id, login, email, password) VALUES (1, 'test', 'test@test.com', '$2a$10$LvRoco8rLY.bOsVikyvM9eVasI4MMbzgrueCpZ5lDpUNzD7CRAA7W');
+INSERT INTO users (id, login, email, password)VALUES (NEXTVAL('users_id_seq'), 'test', 'test@test.com', '$2a$10$LvRoco8rLY.bOsVikyvM9eVasI4MMbzgrueCpZ5lDpUNzD7CRAA7W');
 INSERT INTO user_roles (user_id, role) VALUES (1, 'USER_ROLE');
