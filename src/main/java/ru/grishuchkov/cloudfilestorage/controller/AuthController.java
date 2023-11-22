@@ -23,7 +23,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String getLoginPage(@AuthenticationPrincipal UserDetails principal) {
-        if(principal != null){
+        if(isAuthenticated(principal)){
             return "redirect:/home";
         }
         return "login";
@@ -32,14 +32,16 @@ public class AuthController {
     @GetMapping("/register")
     public String getRegisterPage(Model model,
                                   @AuthenticationPrincipal UserDetails principal) {
-
-        model.addAttribute("UserRegistration", new UserRegistration());
-
-        if(principal != null){
+        if(isAuthenticated(principal)){
             return "redirect:/home";
         }
 
+        model.addAttribute("UserRegistration", new UserRegistration());
         return "register";
+    }
+
+    private boolean isAuthenticated(UserDetails principal){
+        return principal != null;
     }
 
     @PostMapping("/register")
@@ -51,7 +53,6 @@ public class AuthController {
         }
 
         userService.registration(userRegistration);
-
         return "redirect:login";
     }
 }
