@@ -13,8 +13,6 @@ import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.repository.UserRepository;
 import ru.grishuchkov.cloudfilestorage.util.mapper.UserRegisterMapper;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,14 +26,14 @@ public final class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = getUserEntity(username);
+        User user = getUserByUsername(username);
         List<SimpleGrantedAuthority> authorities = getAuthorities(user);
 
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(), user.getPassword(), authorities);
     }
 
-    private User getUserEntity(String username) {
+    public User getUserByUsername(String username) {
         Optional<User> userOptional = userRepository.findUserByLogin(username);
         if(userOptional.isEmpty()){
             throw new RuntimeException("User not found");
