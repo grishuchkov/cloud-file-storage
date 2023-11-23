@@ -32,6 +32,7 @@ public class SecurityConfig {
                                 .requestMatchers("/register", "/login").permitAll()
                                 .requestMatchers("/home", "/").permitAll()
                                 .requestMatchers("/logout").permitAll()
+                                .requestMatchers("/file/**").authenticated()
                                 .anyRequest().authenticated()
                         )
                 .formLogin
@@ -46,8 +47,9 @@ public class SecurityConfig {
                                 .invalidateHttpSession(true)
                         )
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
                 .build();
-    }
+}
 
     @Bean
     public DaoAuthenticationProvider daoAuthenticationProvider() {
