@@ -1,6 +1,9 @@
 package ru.grishuchkov.cloudfilestorage.service.ifc;
 
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
+
+import java.util.List;
 
 public interface FileService {
 
@@ -8,5 +11,5 @@ public interface FileService {
 
      byte[] get(String filename);
 
-     void scan(String path);
+     List<FileMetadata> getFilesMetadata(String path);
 }
