@@ -49,7 +49,7 @@ public class FileController {
 
     @GetMapping("/scan")
     public ResponseEntity<String> scan(@RequestParam(value = "path", defaultValue = "") String path){
-        fileService.scan(path);
+        fileService.getFilesMetadata(path);
 
         return ResponseEntity.ok().body("ok");
     }

@@ -1,0 +1,49 @@
+<div th:fragment="navbar">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-10">
+        <div class="container-md">
+            <a class="navbar-brand" href="#">Navbar</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+                    </li>
+                </ul>
+
+                <div class="d-flex" th:if="${#authorization.expression('isAuthenticated()')}">
+                    <form class="d-flex mb-2 mb-lg-0">
+                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+
+                    <form class="d-flex ms-2 mb-2 mb-lg-0" action="#" th:action="@{/logout}" method="POST">
+                        <button type="submit" class="btn btn-outline-danger">Log out</button>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    </form>
+                </div>
+
+                <div class="d-flex" th:unless="${#authorization.expression('isAuthenticated()')}">
+                    <form class="p-1 bd-highlight mb-2 mb-lg-0" action="#" th:action="@{/login}" method="GET">
+                        <button type="submit" class="btn btn-success">Login</button>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    </form>
+                    <form class="p-1 bd-highlight d-flex mb-2 mb-lg-0" action="#" th:action="@{/register}" method="GET">
+                        <button type="submit" class="btn btn-success">Register</button>
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+</div>

@@ -1,15 +1,30 @@
 package ru.grishuchkov.cloudfilestorage.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
+import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
+
+import java.util.List;
 
 @Controller
+@RequiredArgsConstructor
 public class HomeController {
 
+    private final FileService fileService;
+
     @GetMapping({"/", "/home"})
-    public String getHomePage() {
+    public String getHomePage(Model model) {
+        model.addAttribute("UploadFiles", new UploadFiles());
+
+        List<FileMetadata> filesMetadata = fileService.getFilesMetadata("");
+        model.addAttribute("FilesMetadata", filesMetadata);
+
         return "home";
     }
 }

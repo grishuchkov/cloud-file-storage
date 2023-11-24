@@ -4,13 +4,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <title>Test html</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
+
+    <title>Home page</title>
 </head>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-10">
     <div class="container-md">
         <a class="navbar-brand" href="#">Navbar</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -27,12 +30,17 @@
                 </li>
             </ul>
 
-            <div class="d-flex" th:if="${#authorization.expression('isAuthenticated()')}">
-                <form class="d-flex mb-2 mb-lg-0">
+            <div class="d-flex mx-auto" th:if="${#authorization.expression('isAuthenticated()')}">
+                <form class="d-flex mx-auto mb-2 mb-lg-0">
                     <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                     <button class="btn btn-outline-success" type="submit">Search</button>
                 </form>
+            </div>
 
+            <div class="d-flex mx-auto" th:if="${#authorization.expression('isAuthenticated()')}">
+                <div class="me-2 pt-2">
+                    Привет, <span th:text="${#authentication.name}">пользователь</span>!
+                </div>
                 <form class="d-flex ms-2 mb-2 mb-lg-0" action="#" th:action="@{/logout}" method="POST">
                     <button type="submit" class="btn btn-outline-danger">Log out</button>
                     <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
@@ -58,7 +66,7 @@
 <div class="container text-center">
     <div class="row">
         <div th:if="${#authorization.expression('isAuthenticated()')}">
-            Привет, <span th:text="${#authentication.name}">пользователь</span>!
+            <div th:replace="~{upload-input :: div}"></div>
         </div>
 
         <div th:unless="${#authorization.expression('isAuthenticated()')}">
@@ -66,7 +74,36 @@
         </div>
     </div>
 </div>
+<div class="container pt-3">
+    <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-2 row-cols-sm-1 row-cols-1  g-4">
+        <div th:each="fileMetadata : ${FilesMetadata}">
+            <div class="col mx-auto">
+                <div class="card text-center mx-auto" style="width: 18rem;">
+                    <div class="card-body">
+                        <form th:action="@{/}" method="post">
 
+                            <p class="card-text">
+                                <img th:src="|images/extension-icons/${fileMetadata.extension}.svg|" width="100px"/>
+                            </p>
+                            <h5 class="card-title" th:text="${fileMetadata.filename}">Card title</h5>
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" th:text="'Extension: ' + ${fileMetadata.extension}">Extension</li>
+                            </ul>
+
+                            <input type="hidden" th:value="${fileMetadata.filename}" name="filename">
+                            <input type="hidden" th:value="${fileMetadata.extension}" name="extension">
+
+                            <button type="submit" class="btn btn-outline-danger mt-1">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/js/bootstrap5-toggle.ecmas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>

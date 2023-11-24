@@ -1,0 +1,43 @@
+<div th:fragmen="upload-input">
+    <div class="container">
+        <form class="d-flex align-items-center justify-content-center" method="POST" action="#"
+              th:action="@{/file/upload}"
+              enctype="multipart/form-data"
+              th:object="${UploadFiles}">
+
+            <div class="d-flex text-center">
+                <div class="flex-grow-1">
+                    <input class="form-control" type="file" id="input" name="file" th:field="*{files}"
+                           style="max-width: 300px; overflow: hidden; white-space: nowrap;"
+                           multiple>
+                </div>
+            </div>
+
+            <div class="p-3 form-check form-switch p-0">
+                <label for="toggle-file" data-on="Single" data-off="Multiple"></label>
+                <input class="text-center" data-size="" type="checkbox" id="toggle-file" data-toggle="toggle"
+                       data-onlabel="Файлы"
+                       data-offstyle="primary" data-offlabel="Каталог">
+
+            </div>
+            <button type="submit" class="btn btn-success btn-block">Upload</button>
+        </form>
+    </div>
+
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function () {
+            const toggle = document.getElementById('toggle-file');
+            toggle.checked = true;
+
+            const input = document.getElementById('input');
+
+            toggle.addEventListener('change', () => {
+                input.webkitdirectory = !toggle.checked;
+                input.value = "";
+            })
+        });
+        /*]]>*/
+    </script>
+</div>

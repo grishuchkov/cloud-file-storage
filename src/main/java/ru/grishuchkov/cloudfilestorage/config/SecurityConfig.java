@@ -29,10 +29,10 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests
                         (authorize -> authorize
-                                .requestMatchers("/register", "/login").permitAll()
-                                .requestMatchers("/home", "/").permitAll()
-                                .requestMatchers("/logout").permitAll()
-                                .requestMatchers("/file/**").authenticated()
+                                .requestMatchers("/images/**").permitAll()
+                                .requestMatchers("/register", "/login","/logout").permitAll()
+                                .requestMatchers("/home","/").permitAll()
+                                .requestMatchers("/file/**").permitAll()
                                 .anyRequest().authenticated()
                         )
                 .formLogin
