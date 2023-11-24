@@ -14,11 +14,11 @@
         <div class="row justify-content-sm-center h-100">
             <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
                 <div class="text-center my-5">
-                    <img src="https://img.icons8.com/external-phatplus-lineal-color-phatplus/256/external-uploadFiles-big-data-phatplus-lineal-color-phatplus.png"
+                    <img src="../images/cloud-storage.png"
                          alt="logo" width="150">
                 </div>
                 <div class="card shadow-lg">
-                    <div class="card-body p-5">
+                    <div class="card-body p-5 pb-1">
                         <h1 class="fs-4 card-title fw-bold mb-4 text-center">REGISTRATION</h1>
 
                         <form th:method="POST" th:action="@{/register}" th:object="${UserRegistration}"
@@ -32,7 +32,7 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="mb-1">
                                 <label class="mb-2 text-muted" for="name">Login:</label>
 
                                 <input type="text" id="name" th:field="*{login}" class="form-control" required
@@ -44,7 +44,7 @@
 
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-1">
                                 <label class="mb-2 text-muted" for="email">E-Mail Address:</label>
 
                                 <input type="text" id="email" th:field="*{email}" class="form-control" required
@@ -55,7 +55,7 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3">
+                            <div class="mb-1">
                                 <label class="mb-2 text-muted" for="password">Password:</label>
                                 <input type="password" id="password" th:field="*{password}" class="form-control"
                                        required
@@ -84,9 +84,9 @@
                             </div>
                         </form>
                     </div>
-                    <div class="card-footer py-3 border-0">
+                    <div class="card-footer py-4 border-0">
                         <div class="text-center">
-                            Already have an account? <a href="login.html" class="text-dark">Login</a>
+                            Already have an account? <a href="login" class="text-dark">Login</a>
                         </div>
                     </div>
                 </div>
