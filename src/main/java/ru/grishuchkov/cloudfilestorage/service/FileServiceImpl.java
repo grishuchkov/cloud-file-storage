@@ -24,43 +24,21 @@ public class FileServiceImpl implements FileService {
     private final MinioClient minioClient;
     private final UserService userService;
     private final ItemsToFileMetadataMapper itemsMapper;
+    private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
 
     @Override
     @SneakyThrows
     public void save(UploadFiles files) {
-        String bucketTemplate = "user-%d-files";
-
-        String ownerUsername = files.getOwnerUsername();
         List<MultipartFile> uploadFiles = files.getFiles();
+        String ownerUsername = files.getOwnerUsername();
 
-        User owner = userService.getUserByUsername(ownerUsername);
-        String userBucket = String.format(bucketTemplate, owner.getId());
+        User owner = getOwnerByUsername(ownerUsername);
+        String userBucket = getUserBucketName(owner);
 
-        boolean found = minioClient.bucketExists(BucketExistsArgs
-                .builder()
-                .bucket(userBucket)
-                .build()
-        );
-
-        if (!found) {
-            minioClient.makeBucket(MakeBucketArgs.builder().bucket(userBucket).build());
-        } else {
-            System.out.println("Bucket already exists.");
+        if (!isBucketExists(userBucket)) {
+            makeBucket(userBucket);
         }
-
-        for (MultipartFile multipartFile : uploadFiles) {
-
-            InputStream inputStream = multipartFile.getInputStream();
-            String originalFilename = multipartFile.getOriginalFilename();
-
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(userBucket)
-                            .object(originalFilename)
-                            .stream(inputStream, inputStream.available(), -1).build()
-            );
-            inputStream.close();
-        }
+        uploadMultipartFiles(uploadFiles, userBucket);
     }
 
     @Override
@@ -79,12 +57,19 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @SneakyThrows
-    public List<FileMetadata> getFilesMetadata(String path) {
+    public List<FileMetadata> getUserFilesMetadata(String path, String username) {
         List<Item> itemsAtDirectory = new ArrayList<>();
+
+        User owner = getOwnerByUsername(username);
+        String userBucket = getUserBucketName(owner);
+
+        if (!isBucketExists(userBucket)) {
+            makeBucket(userBucket);
+        }
 
         Iterable<Result<Item>> results = minioClient.listObjects(
                 ListObjectsArgs.builder()
-                        .bucket("asiatrip")
+                        .bucket(userBucket)
                         .prefix(path)
                         .build()
         );
@@ -98,4 +83,48 @@ public class FileServiceImpl implements FileService {
         return fileMetadata;
     }
 
+    private User getOwnerByUsername(String username) {
+        return userService.getUserByUsername(username);
+    }
+
+    private String getUserBucketName(User user) {
+        Long userId = user.getId();
+        return String.format(BUCKET_NAME_TEMPLATE, userId);
+    }
+
+    @SneakyThrows
+    private Boolean isBucketExists(String bucketName) {
+        boolean found = minioClient.bucketExists(BucketExistsArgs
+                .builder()
+                .bucket(bucketName)
+                .build()
+        );
+        return found;
+    }
+
+    @SneakyThrows
+    private void makeBucket(String bucketName) {
+        minioClient.makeBucket(MakeBucketArgs
+                .builder()
+                .bucket(bucketName)
+                .build()
+        );
+    }
+
+    @SneakyThrows
+    private void uploadMultipartFiles(List<MultipartFile> files, String bucketName) {
+        for (MultipartFile multipartFile : files) {
+            InputStream inputStream = multipartFile.getInputStream();
+            String originalFilename = multipartFile.getOriginalFilename();
+
+            minioClient.putObject(
+                    PutObjectArgs.builder()
+                            .bucket(bucketName)
+                            .object(originalFilename)
+                            .stream(inputStream, inputStream.available(), -1)
+                            .build()
+            );
+            inputStream.close();
+        }
+    }
 }

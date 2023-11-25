@@ -11,5 +11,5 @@ public interface FileService {
 
      byte[] get(String filename);
 
-     List<FileMetadata> getFilesMetadata(String path);
+     List<FileMetadata> getUserFilesMetadata(String path, String username);
 }

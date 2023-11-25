@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
@@ -19,10 +20,13 @@ public class HomeController {
     private final FileService fileService;
 
     @GetMapping({"/", "/home"})
-    public String getHomePage(Model model) {
+    public String getHomePage(Model model,
+                              @RequestParam(value = "path", defaultValue = "") String path,
+                              @AuthenticationPrincipal UserDetails userDetails) {
+
         model.addAttribute("UploadFiles", new UploadFiles());
 
-        List<FileMetadata> filesMetadata = fileService.getFilesMetadata("");
+        List<FileMetadata> filesMetadata = fileService.getUserFilesMetadata(path, userDetails.getUsername());
         model.addAttribute("FilesMetadata", filesMetadata);
 
         return "home";

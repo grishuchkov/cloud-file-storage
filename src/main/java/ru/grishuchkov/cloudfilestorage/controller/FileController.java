@@ -38,18 +38,18 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    public ResponseEntity<String> upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
+    public String upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
                                          @AuthenticationPrincipal UserDetails userDetails) {
 
         uploadFiles.setOwnerUsername(userDetails.getUsername());
         fileService.save(uploadFiles);
 
-        return ResponseEntity.ok().body("ok");
+        return "redirect:/home";
     }
 
     @GetMapping("/scan")
     public ResponseEntity<String> scan(@RequestParam(value = "path", defaultValue = "") String path){
-        fileService.getFilesMetadata(path);
+        fileService.getUserFilesMetadata(path, "test");
 
         return ResponseEntity.ok().body("ok");
     }
