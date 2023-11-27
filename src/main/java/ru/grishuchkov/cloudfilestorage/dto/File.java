@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class FileMetadata {
+public class File {
     private String filename;
     private String extension;
     private String path;

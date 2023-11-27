@@ -7,7 +7,9 @@ import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.File;
+import ru.grishuchkov.cloudfilestorage.dto.FilesContainer;
+import ru.grishuchkov.cloudfilestorage.dto.Path;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
@@ -38,7 +40,7 @@ public class FileServiceImpl implements FileService {
         if (!isBucketExists(userBucket)) {
             makeBucket(userBucket);
         }
-        uploadMultipartFiles(uploadFiles, userBucket);
+        uploadMultipartFilesToBucket(uploadFiles, userBucket);
     }
 
     @Override
@@ -57,8 +59,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @SneakyThrows
-    public List<FileMetadata> getUserFilesMetadata(String path, String username) {
-        List<Item> itemsAtDirectory = new ArrayList<>();
+    public FilesContainer getUserFiles(String path, String username) {
 
         User owner = getOwnerByUsername(username);
         String userBucket = getUserBucketName(owner);
@@ -67,21 +68,14 @@ public class FileServiceImpl implements FileService {
             makeBucket(userBucket);
         }
 
-        Iterable<Result<Item>> results = minioClient.listObjects(
-                ListObjectsArgs.builder()
-                        .bucket(userBucket)
-                        .prefix(path)
-                        .build()
-        );
+        List<File> filesFromBucket = getFilesFromBucket(userBucket, path);
 
-        for (Result<Item> result : results) {
-            itemsAtDirectory.add(result.get());
-        }
-
-        List<FileMetadata> fileMetadata = itemsMapper.toFileMetadata(itemsAtDirectory);
-
-        return fileMetadata;
+        return FilesContainer.builder()
+                .files(filesFromBucket)
+                .path(new Path(path))
+                .build();
     }
+
 
     private User getOwnerByUsername(String username) {
         return userService.getUserByUsername(username);
@@ -110,9 +104,26 @@ public class FileServiceImpl implements FileService {
                 .build()
         );
     }
+    @SneakyThrows
+    private List<File> getFilesFromBucket(String userBucket, String path){
+        List<Item> itemsAtDirectory = new ArrayList<>();
+
+        Iterable<Result<Item>> results = minioClient.listObjects(
+                ListObjectsArgs.builder()
+                        .bucket(userBucket)
+                        .prefix(path)
+                        .build()
+        );
+
+        for (Result<Item> result : results) {
+            itemsAtDirectory.add(result.get());
+        }
+
+        return itemsMapper.toFile(itemsAtDirectory);
+    }
 
     @SneakyThrows
-    private void uploadMultipartFiles(List<MultipartFile> files, String bucketName) {
+    private void uploadMultipartFilesToBucket(List<MultipartFile> files, String bucketName) {
         for (MultipartFile multipartFile : files) {
             InputStream inputStream = multipartFile.getInputStream();
             String originalFilename = multipartFile.getOriginalFilename();
