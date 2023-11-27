@@ -11,16 +11,18 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light mb-10">
     <div class="container-md">
+
         <a class="navbar-brand" href="#">Navbar</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent"
                 aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    <a class="nav-link active" aria-current="page" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Link</a>
@@ -74,31 +76,44 @@
         </div>
     </div>
 </div>
-<div class="container pt-3">
-    <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-2 row-cols-sm-1 row-cols-1  g-4">
-        <div th:each="fileMetadata : ${FilesMetadata}">
-            <div class="col mx-auto">
-                <div class="card text-center mx-auto" style="width: 18rem;">
-                    <div class="card-body">
-                        <form th:action="@{/}" method="post">
 
-                            <p class="card-text">
-                                <img th:src="|images/extension-icons/${fileMetadata.extension}.svg|" width="100px"/>
-                            </p>
-                            <h5 class="card-title" th:text="${fileMetadata.filename}">Card title</h5>
 
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item" th:text="'Extension: ' + ${fileMetadata.extension}">Extension</li>
-                            </ul>
+<div th:if="${#authorization.expression('isAuthenticated()')}">
+    <div class="container pt-3">
 
-                            <input type="hidden" th:value="${fileMetadata.filename}" name="filename">
-                            <input type="hidden" th:value="${fileMetadata.extension}" name="extension">
+        <div class="pe-2" th:replace="~{breadcrums :: div}"></div>
 
-                            <button type="submit" class="btn btn-outline-danger mt-1">Delete</button>
-                        </form>
+        <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-2 row-cols-sm-1 row-cols-1  g-4">
+
+            <div th:each="file : ${FilesContainer.getFiles()}">
+                <div class="col mx-auto">
+                    <div class="card text-center mx-auto" style="width: 18rem;">
+
+                        <div class="card-body">
+                            <form th:action="@{/}" method="post">
+
+                                <p class="card-text">
+                                    <img th:src="|images/extension-icons/${file.extension}.svg|" width="100px"/>
+                                </p>
+                                <h5 class="card-title" th:text="${file.filename}">Card title</h5>
+
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item" th:text="'Extension: ' + ${file.extension}">
+                                        Extension
+                                    </li>
+                                </ul>
+
+                                <input type="hidden" th:value="${file.filename}" name="filename">
+                                <input type="hidden" th:value="${file.extension}" name="extension">
+
+                                <button type="submit" class="btn btn-outline-danger mt-1">Delete</button>
+                            </form>
+                        </div>
                     </div>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>

@@ -1,0 +1,24 @@
+<div th:fragment="breadcrums">
+    <nav aria-label="breadcrumb">
+        <ol th:with="path=${FilesContainer.getPath().getPartsOfPath()}" class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/">Home</a>
+            </li>
+            <th:block th:each="part : ${path}">
+                <li class="breadcrumb-item">
+                    <a href="#" th:text="${part}" th:attr="data-path=${part}"></a>
+                </li>
+            </th:block>
+        </ol>
+    </nav>
+
+    <script>
+        const breadcrumbLinks = document.querySelectorAll('.breadcrumb a[data-path]');
+        let linkTmp = '';
+
+        breadcrumbLinks.forEach(link => {
+            linkTmp = linkTmp + link.getAttribute('data-path') + '/';
+            link.href = 'home?path=' + linkTmp;
+        });
+    </script>
+</div>
