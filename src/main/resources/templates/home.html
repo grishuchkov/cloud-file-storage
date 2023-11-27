@@ -106,7 +106,17 @@
                                 <input type="hidden" th:value="${file.filename}" name="filename">
                                 <input type="hidden" th:value="${file.extension}" name="extension">
 
-                                <button type="submit" class="btn btn-outline-danger mt-1">Delete</button>
+                                <div th:if="${file.extension == 'none'}">
+                                    <a class="btn btn-outline-success mt-1"
+                                       th:href="@{/home(path=${file.filename})}"
+                                       role="button">Open</a>
+                                </div>
+                                <div th:unless="${file.extension == 'none'}">
+                                    <a class="btn btn-outline-success mt-1"
+                                       th:href="@{/file/download(filename=${file.filename})}"
+                                       role="button">Download</a>
+                                    <button type="submit" class="btn btn-outline-danger mt-1 ms-2">Delete</button>
+                                </div>
                             </form>
                         </div>
                     </div>

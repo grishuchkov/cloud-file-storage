@@ -45,11 +45,14 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @SneakyThrows
-    public byte[] get(String filename) {
+    public byte[] get(String filename, String username) {
+
+        User owner = getOwnerByUsername(username);
+        String userBucket = getUserBucketName(owner);
 
         GetObjectResponse object = minioClient.getObject(
                 GetObjectArgs.builder()
-                        .bucket("asiatrip")
+                        .bucket(userBucket)
                         .object(filename)
                         .build());
 

@@ -7,7 +7,7 @@ public interface FileService {
 
      void save(UploadFiles uploadFiles);
 
-     byte[] get(String filename);
+     byte[] get(String filename, String username);
 
      FilesContainer getUserFiles(String path, String username);
 }
