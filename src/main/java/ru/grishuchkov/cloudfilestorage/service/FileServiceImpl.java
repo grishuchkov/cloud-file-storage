@@ -7,13 +7,10 @@ import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.grishuchkov.cloudfilestorage.dto.File;
-import ru.grishuchkov.cloudfilestorage.dto.FilesContainer;
-import ru.grishuchkov.cloudfilestorage.dto.Path;
-import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
+import ru.grishuchkov.cloudfilestorage.dto.*;
 import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
-import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileMetadataMapper;
+import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,10 +20,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
+    private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
     private final MinioClient minioClient;
     private final UserService userService;
-    private final ItemsToFileMetadataMapper itemsMapper;
-    private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
+    private final ItemsToFileMapper itemsMapper;
 
     @Override
     @SneakyThrows
@@ -44,10 +41,33 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    @SneakyThrows
-    public byte[] get(String filename, String username) {
+    public boolean delete(FileDetails file) {
+        String ownerUsername = file.getOwnerUsername();
+        User owner = getOwnerByUsername(ownerUsername);
+        String userBucket = getUserBucketName(owner);
 
-        User owner = getOwnerByUsername(username);
+        if (!isBucketExists(userBucket)) {
+            makeBucket(userBucket);
+        }
+
+        try {
+            minioClient.removeObject(
+                    RemoveObjectArgs.builder()
+                            .bucket(userBucket)
+                            .object(file.getFile().getFilename())
+                            .build());
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    @Override
+    @SneakyThrows
+    public byte[] downloadFile(String filename, String ownerUsername) {
+
+        User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
 
         GetObjectResponse object = minioClient.getObject(
@@ -62,20 +82,20 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @SneakyThrows
-    public FilesContainer getUserFiles(String path, String username) {
+    public FilesContainer getUserFiles(String pathToFile, String ownerUsername) {
 
-        User owner = getOwnerByUsername(username);
+        User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
 
         if (!isBucketExists(userBucket)) {
             makeBucket(userBucket);
         }
 
-        List<File> filesFromBucket = getFilesFromBucket(userBucket, path);
+        List<File> filesFromBucket = getFilesFromBucket(userBucket, pathToFile);
 
         return FilesContainer.builder()
                 .files(filesFromBucket)
-                .path(new Path(path))
+                .path(new Path(pathToFile))
                 .build();
     }
 
@@ -107,8 +127,9 @@ public class FileServiceImpl implements FileService {
                 .build()
         );
     }
+
     @SneakyThrows
-    private List<File> getFilesFromBucket(String userBucket, String path){
+    private List<File> getFilesFromBucket(String userBucket, String path) {
         List<Item> itemsAtDirectory = new ArrayList<>();
 
         Iterable<Result<Item>> results = minioClient.listObjects(

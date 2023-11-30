@@ -1,12 +1,17 @@
 package ru.grishuchkov.cloudfilestorage.dto;
 
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
 @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class File {
     private String filename;
     private String extension;
-    private String path;
+
+    public String getFilenameWithExtension(){
+        return filename + "." + extension;
+    }
 }

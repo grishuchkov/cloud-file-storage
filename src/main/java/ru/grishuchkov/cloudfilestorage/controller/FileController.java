@@ -10,8 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriUtils;
+import ru.grishuchkov.cloudfilestorage.dto.FileDetails;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 
@@ -24,19 +25,14 @@ public class FileController {
 
     private final FileService fileService;
 
-    @GetMapping(path = "/uploadPage")
-    public String uploadPage(Model model){
-        model.addAttribute("UploadFiles", new UploadFiles());
-        return "file-upload";
-    }
-
-    @GetMapping(path = "/download")
+    @GetMapping("/download")
     public ResponseEntity<Resource> uploadFile(@RequestParam(value = "filename") String filename,
+                                               @RequestParam(value = "path", defaultValue = "") String path,
                                                @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null){
-           throw new RuntimeException("userDetails == null");
+        if (userDetails == null) {
+            throw new RuntimeException("userDetails == null");
         }
-        byte[] data = fileService.get(filename, userDetails.getUsername());
+        byte[] data = fileService.downloadFile(path + filename, userDetails.getUsername());
 
         ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
                 .filename(filename, StandardCharsets.UTF_8)
@@ -53,20 +49,31 @@ public class FileController {
                 .body(new ByteArrayResource(data));
     }
 
+    @DeleteMapping(path = "/delete")
+    public String delete(@AuthenticationPrincipal UserDetails userDetails,
+                         @ModelAttribute("fileDetails") FileDetails fileDetails) {
+        String path = fileDetails.getPath().getPathString();
+
+        if (userDetails == null) {
+            throw new RuntimeException("userDetails == null");
+        }
+
+        fileDetails.setOwnerUsername(userDetails.getUsername());
+        fileService.delete(fileDetails);
+
+        if (path.isEmpty()) {
+            return "redirect:/home";
+        }
+        return "redirect:/home?path=" + UriUtils.encodePath(path, "UTF-8");
+    }
+
     @PostMapping("/upload")
     public String upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
-                                         @AuthenticationPrincipal UserDetails userDetails) {
+                         @AuthenticationPrincipal UserDetails userDetails) {
 
         uploadFiles.setOwnerUsername(userDetails.getUsername());
         fileService.save(uploadFiles);
 
         return "redirect:/home";
-    }
-
-    @GetMapping("/scan")
-    public ResponseEntity<String> scan(@RequestParam(value = "path", defaultValue = "") String path){
-        fileService.getUserFiles(path, "test");
-
-        return ResponseEntity.ok().body("ok");
     }
 }
