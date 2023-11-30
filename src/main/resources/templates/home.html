@@ -101,17 +101,17 @@
                                 </li>
                             </ul>
 
-                            <div th:if="${fileInfo.extension == 'none'}">
+                            <div th:if="${fileInfo.extension == 'folder'}">
                                 <a class="btn btn-outline-success mt-1"
                                    th:href="@{/home(path=${FilesContainer.getPath().getPathString()} + ${fileInfo.filename} + '/')}"
                                    role="button">Open</a>
                             </div>
 
-                            <div th:unless="${fileInfo.extension == 'none'}">
+                            <div th:unless="${fileInfo.extension == 'folder'}">
 
                                 <div class="btn-group">
                                     <a class="btn btn-outline-success"
-                                       th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.filename})}"
+                                       th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.getFilenameWithExtension()})}"
                                        role="button">Download</a>
 
                                     <button type="button"
@@ -126,8 +126,9 @@
 
                                                 <input type="hidden" th:value="${fileInfo.filename}"
                                                        name="fileInfo.filename"/>
-                                                <input type="hidden"
-                                                       th:value="${FilesContainer.getPath().getPathString()}"
+                                                <input type="hidden" th:value="${fileInfo.extension}"
+                                                       name="fileInfo.extension"/>
+                                                <input type="hidden" th:value="${FilesContainer.getPath().getPathString()}"
                                                        name="filePath.pathString"/>
 
                                                 <button class="dropdown-item" type="submit">Delete</button>
