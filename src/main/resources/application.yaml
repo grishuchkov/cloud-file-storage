@@ -11,6 +11,21 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
+  thymeleaf:
+    encoding: UTF-8
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+server:
+  port: 8090
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+  tomcat:
+    uri-encoding: UTF-8
+
 
 minio:
   bucket: ${MINIO_BUCKET}
