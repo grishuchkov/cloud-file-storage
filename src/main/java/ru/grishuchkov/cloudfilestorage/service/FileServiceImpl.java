@@ -41,7 +41,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public boolean delete(FileDetails file) {
+    public boolean delete(FileMetadata file) {
         String ownerUsername = file.getOwnerUsername();
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
@@ -54,7 +54,7 @@ public class FileServiceImpl implements FileService {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(userBucket)
-                            .object(file.getFile().getFilename())
+                            .object(file.getFileInfo().getFilename())
                             .build());
         } catch (Exception e) {
             return false;
@@ -91,11 +91,11 @@ public class FileServiceImpl implements FileService {
             makeBucket(userBucket);
         }
 
-        List<File> filesFromBucket = getFilesFromBucket(userBucket, pathToFile);
+        List<FileInfo> filesFromBucket = getFilesFromBucket(userBucket, pathToFile);
 
         return FilesContainer.builder()
                 .files(filesFromBucket)
-                .path(new Path(pathToFile))
+                .path(new FilePath(pathToFile))
                 .build();
     }
 
@@ -129,7 +129,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @SneakyThrows
-    private List<File> getFilesFromBucket(String userBucket, String path) {
+    private List<FileInfo> getFilesFromBucket(String userBucket, String path) {
         List<Item> itemsAtDirectory = new ArrayList<>();
 
         Iterable<Result<Item>> results = minioClient.listObjects(

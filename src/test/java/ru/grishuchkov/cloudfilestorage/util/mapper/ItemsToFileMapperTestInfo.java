@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ItemsToFileMapperTest {
+class ItemsToFileMapperTestInfo {
     private final ItemsToFileMapper mapper = new ItemsToFileMapper();
 
     @Test

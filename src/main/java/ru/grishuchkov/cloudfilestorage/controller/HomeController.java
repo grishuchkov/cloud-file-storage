@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.grishuchkov.cloudfilestorage.dto.FileDetails;
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.FilesContainer;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
@@ -24,7 +24,7 @@ public class HomeController {
                               @AuthenticationPrincipal UserDetails userDetails) {
 
         model.addAttribute("UploadFiles", new UploadFiles());
-        model.addAttribute("fileDetails", new FileDetails());
+        model.addAttribute("fileDetails", new FileMetadata());
 
         if(userDetails != null){
             FilesContainer filesContainer = fileService

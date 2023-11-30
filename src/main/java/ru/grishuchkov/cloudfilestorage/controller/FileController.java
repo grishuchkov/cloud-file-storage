@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
-import ru.grishuchkov.cloudfilestorage.dto.FileDetails;
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 
@@ -51,15 +51,15 @@ public class FileController {
 
     @DeleteMapping(path = "/delete")
     public String delete(@AuthenticationPrincipal UserDetails userDetails,
-                         @ModelAttribute("fileDetails") FileDetails fileDetails) {
-        String path = fileDetails.getPath().getPathString();
+                         @ModelAttribute("fileDetails") FileMetadata fileMetadata) {
+        String path = fileMetadata.getFilePath().getPathString();
 
         if (userDetails == null) {
             throw new RuntimeException("userDetails == null");
         }
 
-        fileDetails.setOwnerUsername(userDetails.getUsername());
-        fileService.delete(fileDetails);
+        fileMetadata.setOwnerUsername(userDetails.getUsername());
+        fileService.delete(fileMetadata);
 
         if (path.isEmpty()) {
             return "redirect:/home";

@@ -2,7 +2,7 @@ package ru.grishuchkov.cloudfilestorage.util.mapper;
 
 import io.minio.messages.Item;
 import org.springframework.stereotype.Component;
-import ru.grishuchkov.cloudfilestorage.dto.File;
+import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,8 +12,8 @@ import java.util.List;
 @Component
 public class ItemsToFileMapper {
 
-    public List<File> toFile(List<Item> items) {
-        List<File> files = new ArrayList<>(items.size());
+    public List<FileInfo> toFile(List<Item> items) {
+        List<FileInfo> fileInfos = new ArrayList<>(items.size());
 
         for (Item item : items) {
             String nameWithPathAndExtension = item.objectName();
@@ -21,11 +21,11 @@ public class ItemsToFileMapper {
             String extension = getExtension(nameWithPathAndExtension);
             String filename = getFilename(nameWithPathAndExtension);
 
-            File file = createFile(filename, extension);
-            files.add(file);
+            FileInfo fileInfo = createFile(filename, extension);
+            fileInfos.add(fileInfo);
         }
-        Collections.reverse(files);
-        return files;
+        Collections.reverse(fileInfos);
+        return fileInfos;
     }
 
     private String getExtension(String filename) {
@@ -45,8 +45,8 @@ public class ItemsToFileMapper {
         return parts.get(parts.size() - 1);
     }
 
-    private File createFile(String filename, String extension) {
-        return File.builder()
+    private FileInfo createFile(String filename, String extension) {
+        return FileInfo.builder()
                 .filename(filename)
                 .extension(extension)
                 .build();

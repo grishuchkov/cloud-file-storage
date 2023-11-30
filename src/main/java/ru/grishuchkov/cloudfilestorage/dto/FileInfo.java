@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class File {
+public class FileInfo {
     private String filename;
     private String extension;
 

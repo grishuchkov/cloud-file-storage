@@ -10,11 +10,11 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Path {
+public class FilePath {
     private String pathString;
     private List<String> partsOfPath;
 
-    public Path(String path) {
+    public FilePath(String path) {
         this.pathString = path;
         this.partsOfPath = getPartsOfPath(path);
     }
