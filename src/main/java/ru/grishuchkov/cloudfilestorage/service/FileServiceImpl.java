@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.grishuchkov.cloudfilestorage.dto.*;
 import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
-import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileMapper;
+import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -23,7 +23,7 @@ public class FileServiceImpl implements FileService {
     private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
     private final MinioClient minioClient;
     private final UserService userService;
-    private final ItemsToFileMapper itemsMapper;
+    private final ItemsToFileInfoMapper itemsMapper;
 
     @Override
     @SneakyThrows
@@ -46,6 +46,12 @@ public class FileServiceImpl implements FileService {
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
 
+        String path = file.getFilePath().getPathString();
+        String filename = file.getFileInfo().getFilename();
+        String extension = file.getFileInfo().getExtension();
+
+        String finalUrl = path + filename + "." + extension;
+
         if (!isBucketExists(userBucket)) {
             makeBucket(userBucket);
         }
@@ -54,7 +60,7 @@ public class FileServiceImpl implements FileService {
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(userBucket)
-                            .object(file.getFileInfo().getFilename())
+                            .object(finalUrl)
                             .build());
         } catch (Exception e) {
             return false;
