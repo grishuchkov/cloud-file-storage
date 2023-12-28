@@ -111,7 +111,7 @@
 
                                 <div class="btn-group">
                                     <a class="btn btn-outline-success"
-                                       th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.getFilenameWithExtension()})}"
+                                       th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.filename}, extension =${fileInfo.extension})}"
                                        role="button">Download</a>
 
                                     <button type="button"
@@ -121,15 +121,16 @@
                                     </button>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <form th:action="@{/file/delete}" th:method="delete"
-                                                  th:object="${fileMetadata}">
+                                            <form th:action="@{/file/delete}" th:method="delete" th:object="${FileMetadata}">
 
-                                                <input type="hidden" th:value="${fileInfo.filename}"
-                                                       name="fileInfo.filename"/>
-                                                <input type="hidden" th:value="${fileInfo.extension}"
-                                                       name="fileInfo.extension"/>
-                                                <input type="hidden" th:value="${FilesContainer.getPath().getPathString()}"
-                                                       name="filePath.pathString"/>
+                                                <input type="hidden" name="fileInfo.filename"
+                                                       th:value="${fileInfo.filename}"/>
+
+                                                <input type="hidden" name="fileInfo.extension"
+                                                       th:value="${fileInfo.extension}"/>
+
+                                                <input type="hidden" name="filePath.pathString"
+                                                       th:value="${FilesContainer.getPath().getPathString()}"/>
 
                                                 <button class="dropdown-item" type="submit">Delete</button>
                                             </form>

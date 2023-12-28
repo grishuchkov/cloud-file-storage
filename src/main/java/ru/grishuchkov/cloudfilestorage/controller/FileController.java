@@ -7,12 +7,15 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
+import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
 import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.FilePath;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 
@@ -21,59 +24,82 @@ import java.nio.charset.StandardCharsets;
 @Controller
 @RequestMapping("/file")
 @RequiredArgsConstructor
-public class FileController {
+public final class FileController {
 
     private final FileService fileService;
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> uploadFile(@RequestParam(value = "filename") String filename,
-                                               @RequestParam(value = "path", defaultValue = "") String path,
+    public ResponseEntity<Resource> uploadFile(@RequestParam(value = "path", defaultValue = "") String path,
+                                               @RequestParam(value = "filename") String filename,
+                                               @RequestParam(value = "extension") String extension,
                                                @AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails == null) {
-            throw new RuntimeException("userDetails == null");
+        if (!isAuthenticated(userDetails)) {
+            throw new AccessDeniedException("User is not authenticated");
         }
-        byte[] data = fileService.downloadFile(path + filename, userDetails.getUsername());
 
-        ContentDisposition contentDisposition = ContentDisposition.builder("attachment")
-                .filename(filename, StandardCharsets.UTF_8)
+        FileMetadata fileMetadata = buildFileMetadata(path, filename, extension, getUserDetailsUsername(userDetails));
+
+        byte[] fileInBytes = fileService.downloadFile(fileMetadata);
+        String filenameWithExtension = fileMetadata.getFileInfo().getFilenameWithExtension();
+
+        ContentDisposition contentDisposition = ContentDisposition
+                .builder("attachment")
+                .filename(filenameWithExtension, StandardCharsets.UTF_8)
                 .build();
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentDisposition(contentDisposition);
+        HttpHeaders header = new HttpHeaders();
+        header.setContentDisposition(contentDisposition);
 
         return ResponseEntity
                 .ok()
-                .contentLength(data.length)
+                .contentLength(fileInBytes.length)
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                .headers(headers)
-                .body(new ByteArrayResource(data));
+                .headers(header)
+                .body(new ByteArrayResource(fileInBytes));
     }
 
     @DeleteMapping(path = "/delete")
     public String delete(@AuthenticationPrincipal UserDetails userDetails,
-                         @ModelAttribute("fileDetails") FileMetadata fileMetadata) {
-        String path = fileMetadata.getFilePath().getPathString();
+                         @ModelAttribute("FileMetadata") FileMetadata fileMetadata) {
 
-        if (userDetails == null) {
-            throw new RuntimeException("userDetails == null");
+        if (!isAuthenticated(userDetails)) {
+            throw new AccessDeniedException("User is not authenticated");
         }
+        fileMetadata.setOwnerUsername(getUserDetailsUsername(userDetails));
 
-        fileMetadata.setOwnerUsername(userDetails.getUsername());
         fileService.delete(fileMetadata);
 
+        String path = fileMetadata.getFilePath().getPathString();
         if (path.isEmpty()) {
             return "redirect:/home";
         }
         return "redirect:/home?path=" + UriUtils.encodePath(path, "UTF-8");
     }
 
+
     @PostMapping("/upload")
     public String upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
                          @AuthenticationPrincipal UserDetails userDetails) {
 
-        uploadFiles.setOwnerUsername(userDetails.getUsername());
+        uploadFiles.setOwnerUsername(getUserDetailsUsername(userDetails));
         fileService.save(uploadFiles);
 
         return "redirect:/home";
+    }
+
+    private boolean isAuthenticated(UserDetails userDetails) {
+        return userDetails != null;
+    }
+
+    private static String getUserDetailsUsername(UserDetails userDetails) {
+        return userDetails.getUsername();
+    }
+
+    private FileMetadata buildFileMetadata(String path, String filename, String extension, String username) {
+        return FileMetadata.builder()
+                .filePath(new FilePath(path))
+                .fileInfo(new FileInfo(filename, extension))
+                .ownerUsername(username)
+                .build();
     }
 }

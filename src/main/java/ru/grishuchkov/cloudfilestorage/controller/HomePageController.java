@@ -8,13 +8,14 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadataForRename;
 import ru.grishuchkov.cloudfilestorage.dto.FilesContainer;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 
 @Controller
 @RequiredArgsConstructor
-public class HomeController {
+public class HomePageController {
 
     private final FileService fileService;
 
@@ -24,14 +25,20 @@ public class HomeController {
                               @AuthenticationPrincipal UserDetails userDetails) {
 
         model.addAttribute("UploadFiles", new UploadFiles());
-        model.addAttribute("fileDetails", new FileMetadata());
+        model.addAttribute("FileMetadata", new FileMetadata());
+        model.addAttribute("FileMetadataForRename", new FileMetadataForRename());
 
-        if(userDetails != null){
+        if(isAuthenticated(userDetails)){
             FilesContainer filesContainer = fileService
                     .getUserFiles(path, userDetails.getUsername());
+
             model.addAttribute("FilesContainer", filesContainer);
         }
 
         return "home";
+    }
+
+    private boolean isAuthenticated(UserDetails userDetails) {
+        return userDetails != null;
     }
 }

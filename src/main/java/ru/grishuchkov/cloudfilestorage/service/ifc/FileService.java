@@ -8,9 +8,9 @@ public interface FileService {
 
     void save(UploadFiles uploadFiles);
 
-    boolean delete(FileMetadata file);
+    boolean delete(FileMetadata fileMetadata);
 
-    byte[] downloadFile(String filename, String ownerUsername);
+    byte[] downloadFile(FileMetadata fileMetadata);
 
     FilesContainer getUserFiles(String pathToFile, String ownerUsername);
 }

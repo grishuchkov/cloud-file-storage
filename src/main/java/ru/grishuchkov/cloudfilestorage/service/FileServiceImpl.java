@@ -42,6 +42,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public boolean delete(FileMetadata file) {
+
         String ownerUsername = file.getOwnerUsername();
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
@@ -71,7 +72,10 @@ public class FileServiceImpl implements FileService {
 
     @Override
     @SneakyThrows
-    public byte[] downloadFile(String filename, String ownerUsername) {
+    public byte[] downloadFile(FileMetadata file) {
+        String ownerUsername = file.getOwnerUsername();
+        String filenameWithExtension = file.getFileInfo().getFilenameWithExtension();
+        String pathString = file.getFilePath().getPathString();
 
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
@@ -79,9 +83,8 @@ public class FileServiceImpl implements FileService {
         GetObjectResponse object = minioClient.getObject(
                 GetObjectArgs.builder()
                         .bucket(userBucket)
-                        .object(filename)
+                        .object(pathString + filenameWithExtension)
                         .build());
-
 
         return IOUtils.toByteArray(object);
     }

@@ -1,9 +1,11 @@
 package ru.grishuchkov.cloudfilestorage.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
 @AllArgsConstructor
 public class FileMetadata {
     private FileInfo fileInfo;
