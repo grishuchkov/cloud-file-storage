@@ -8,7 +8,7 @@ public interface FileService {
 
     void save(UploadFiles uploadFiles);
 
-    boolean delete(FileMetadata fileMetadata);
+    void delete(FileMetadata fileMetadata);
 
     byte[] downloadFile(FileMetadata fileMetadata);
 
