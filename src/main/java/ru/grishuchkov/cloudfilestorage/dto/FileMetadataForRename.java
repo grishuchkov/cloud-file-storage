@@ -7,6 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileMetadataForRename extends FileMetadata {
-    private String newFilename;
+    private String newFilenameWithExtension;
 }
 
