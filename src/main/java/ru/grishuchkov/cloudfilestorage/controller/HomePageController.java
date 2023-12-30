@@ -30,7 +30,7 @@ public class HomePageController {
 
         if(isAuthenticated(userDetails)){
             FilesContainer filesContainer = fileService
-                    .getUserFiles(path, userDetails.getUsername());
+                    .getFilesInfoOfUser(path, userDetails.getUsername());
 
             model.addAttribute("FilesContainer", filesContainer);
         }

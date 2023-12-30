@@ -2,6 +2,7 @@ package ru.grishuchkov.cloudfilestorage.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.grishuchkov.cloudfilestorage.dto.*;
@@ -24,7 +25,7 @@ public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
 
     @Override
-    public void save(UploadFiles files) {
+    public void save(@NotNull UploadFiles files) {
         List<MultipartFile> uploadedFiles = files.getFiles();
         User owner = getOwnerByUsername(files.getOwnerUsername());
         String userBucket = getUserBucketName(owner);
@@ -37,7 +38,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void delete(FileMetadata file) {
+    public void delete(@NotNull FileMetadata file) {
         User owner = getOwnerByUsername(file.getOwnerUsername());
         String userBucket = getUserBucketName(owner);
 
@@ -50,9 +51,27 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    @Override
+    public void rename(@NotNull FileMetadataForRename fileMetadata) {
+        String newFilenameWithExtension = fileMetadata.getNewFilenameWithExtension();
+
+        User owner = getOwnerByUsername(fileMetadata.getOwnerUsername());
+        String userBucket = getUserBucketName(owner);
+
+        String oldPath = getAbsolutePath(fileMetadata);
+        String newPath = fileMetadata.getFilePath().getPathString() + newFilenameWithExtension;
+
+        try {
+            fileRepository.copy(oldPath, newPath, userBucket);
+            fileRepository.delete(oldPath, userBucket);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
     @Override
-    public byte[] downloadFile(FileMetadata fileMetadata) {
+    public byte[] downloadFile(@NotNull FileMetadata fileMetadata) {
         User owner = getOwnerByUsername(fileMetadata.getOwnerUsername());
 
         String absolutePath = getAbsolutePath(fileMetadata);
@@ -66,7 +85,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public FilesContainer getUserFiles(String path, String ownerUsername) {
+    public FilesContainer getFilesInfoOfUser(String path, String ownerUsername) {
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
 

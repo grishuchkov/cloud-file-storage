@@ -76,6 +76,19 @@ public class FileRepository {
         return itemsMapper.toFile(itemsAtDirectory);
     }
 
+    public void copy(String oldAbsolutePath, String newAbsolutePath, String userBucket) throws Exception {
+        minioClient.copyObject(
+                CopyObjectArgs.builder()
+                        .bucket(userBucket)
+                        .object(newAbsolutePath)
+                        .source(
+                                CopySource.builder()
+                                        .bucket(userBucket)
+                                        .object(oldAbsolutePath)
+                                        .build())
+                        .build());
+    }
+
     @SneakyThrows
     private Boolean isBucketExists(String bucketName) {
         boolean found = minioClient.bucketExists(BucketExistsArgs

@@ -13,10 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
-import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
-import ru.grishuchkov.cloudfilestorage.dto.FilePath;
-import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
+import ru.grishuchkov.cloudfilestorage.dto.*;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 
 import java.nio.charset.StandardCharsets;
@@ -76,10 +73,27 @@ public final class FileController {
         return "redirect:/home?path=" + UriUtils.encodePath(path, "UTF-8");
     }
 
+    @PostMapping("/rename")
+    public String renameFile(@ModelAttribute("FileMetadataForRename")FileMetadataForRename fileMetadata,
+                             @AuthenticationPrincipal UserDetails userDetails){
+        if (!isAuthenticated(userDetails)) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
+        fileMetadata.setOwnerUsername(getUserDetailsUsername(userDetails));
+
+        fileService.rename(fileMetadata);
+
+        return "redirect:/home";
+    }
+
 
     @PostMapping("/upload")
     public String upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
                          @AuthenticationPrincipal UserDetails userDetails) {
+
+        if (!isAuthenticated(userDetails)) {
+            throw new AccessDeniedException("User is not authenticated");
+        }
 
         uploadFiles.setOwnerUsername(getUserDetailsUsername(userDetails));
         fileService.save(uploadFiles);
