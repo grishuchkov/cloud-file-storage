@@ -7,8 +7,6 @@ import lombok.SneakyThrows;
 import org.apache.commons.compress.utils.IOUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.multipart.MultipartFile;
-import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
-import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,7 +17,6 @@ import java.util.List;
 public class FileRepository {
 
     private final MinioClient minioClient;
-    private final ItemsToFileInfoMapper itemsMapper;
 
     public void save(List<MultipartFile> files, String userBucket) throws Exception {
         makeBucketIfNotExists(userBucket);
@@ -59,13 +56,14 @@ public class FileRepository {
         return IOUtils.toByteArray(object);
     }
 
-    public List<FileInfo> getFilesInfo(String path, String userBucket) throws Exception {
+    public List<Item> getListObjects(String path, String userBucket, Boolean recursively) throws Exception {
         List<Item> itemsAtDirectory = new ArrayList<>();
 
         Iterable<Result<Item>> results = minioClient.listObjects(
                 ListObjectsArgs.builder()
                         .bucket(userBucket)
                         .prefix(path)
+                        .recursive(recursively)
                         .build()
         );
 
@@ -73,7 +71,7 @@ public class FileRepository {
             itemsAtDirectory.add(result.get());
         }
 
-        return itemsMapper.toFile(itemsAtDirectory);
+        return itemsAtDirectory;
     }
 
     public void copy(String oldAbsolutePath, String newAbsolutePath, String userBucket) throws Exception {

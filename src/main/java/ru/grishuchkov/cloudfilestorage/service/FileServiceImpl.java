@@ -1,5 +1,6 @@
 package ru.grishuchkov.cloudfilestorage.service;
 
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,8 @@ import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
 import ru.grishuchkov.cloudfilestorage.repository.UserRepository;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
+import ru.grishuchkov.cloudfilestorage.util.FilenameUtils;
+import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +26,9 @@ public class FileServiceImpl implements FileService {
 
     private final UserRepository userRepository;
     private final FileRepository fileRepository;
+
+    private final FilenameUtils filenameUtils;
+    private final ItemsToFileInfoMapper itemsToFileInfoMapper;
 
     @Override
     public void save(@NotNull UploadFiles files) {
@@ -38,14 +44,25 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void delete(@NotNull FileMetadata file) {
-        User owner = getOwnerByUsername(file.getOwnerUsername());
+    public void delete(@NotNull FileMetadata fileMetadata) {
+        User owner = getOwnerByUsername(fileMetadata.getOwnerUsername());
         String userBucket = getUserBucketName(owner);
+        String absolutePath = getAbsolutePath(fileMetadata);
 
-        String absolutePath = getAbsolutePath(file);
+        if (isFolder(fileMetadata)) {
+            List<String> paths = getPathsToAllFilesInDirectory(absolutePath, userBucket);
 
+            for (String path : paths) {
+                doDelete(path, userBucket);
+            }
+        } else {
+            doDelete(absolutePath, userBucket);
+        }
+    }
+
+    private void doDelete(String path, String userBucket) {
         try {
-            fileRepository.delete(absolutePath, userBucket);
+            fileRepository.delete(path, userBucket);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -53,22 +70,57 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void rename(@NotNull FileMetadataForRename fileMetadata) {
-        String newFilenameWithExtension = fileMetadata.getNewFilenameWithExtension();
-
         User owner = getOwnerByUsername(fileMetadata.getOwnerUsername());
         String userBucket = getUserBucketName(owner);
 
-        String oldPath = getAbsolutePath(fileMetadata);
-        String newPath = fileMetadata.getFilePath().getPathString() + newFilenameWithExtension;
+        String newFilenameWithExtension = fileMetadata.getNewFilenameWithExtension();
+        String oldAbsolutePath = getAbsolutePath(fileMetadata);
+        String newAbsolutePath = fileMetadata.getFilePath().getPathString() + newFilenameWithExtension;
 
-        try {
-            fileRepository.copy(oldPath, newPath, userBucket);
-            fileRepository.delete(oldPath, userBucket);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        if (isFolder(fileMetadata)) {
+            if (filenameUtils.hasExtension(newFilenameWithExtension)) {
+                throw new RuntimeException("Folder can't have extension");
+            }
+
+            List<String> objectsPaths = getPathsToAllFilesInDirectory(oldAbsolutePath, userBucket);
+
+            for (String absoluteObjectPath : objectsPaths) {
+                String[] splitPath = absoluteObjectPath.split(oldAbsolutePath);
+                String usefulPartOfOldPath = splitPath[splitPath.length - 1];
+                String newAbsoluteObjectPath = newAbsolutePath + usefulPartOfOldPath;
+
+                doRename(absoluteObjectPath, newAbsoluteObjectPath, userBucket);
+            }
+            return;
         }
+
+        doRename(oldAbsolutePath, newAbsolutePath, userBucket);
     }
 
+    @NotNull
+    private List<String> getPathsToAllFilesInDirectory(String directoryPath, String userBucket) {
+        List<String> filesPaths = new ArrayList<>();
+        try {
+            filesPaths = fileRepository
+                    .getListObjects(directoryPath, userBucket, true)
+                    .stream()
+                    .map(Item::objectName)
+                    .toList();
+
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+        }
+        return filesPaths;
+    }
+
+    private void doRename(String oldAbsolutePath, String newAbsolutePath, String userBucket) {
+        try {
+            fileRepository.copy(oldAbsolutePath, newAbsolutePath, userBucket);
+            fileRepository.delete(oldAbsolutePath, userBucket);
+        } catch (Exception exception) {
+            log.error(exception.getMessage());
+        }
+    }
 
     @Override
     public byte[] downloadFile(@NotNull FileMetadata fileMetadata) {
@@ -89,16 +141,16 @@ public class FileServiceImpl implements FileService {
         User owner = getOwnerByUsername(ownerUsername);
         String userBucket = getUserBucketName(owner);
 
-        List<FileInfo> filesFromBucket = new ArrayList<>();
-
+        List<Item> itemsFromBucket = new ArrayList<>();
         try {
-            filesFromBucket = fileRepository.getFilesInfo(path, userBucket);
+            itemsFromBucket = fileRepository.getListObjects(path, userBucket, false);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
 
+        List<FileInfo> files = itemsToFileInfoMapper.toFile(itemsFromBucket);
         return FilesContainer.builder()
-                .files(filesFromBucket)
+                .files(files)
                 .path(new FilePath(path))
                 .build();
     }
@@ -116,8 +168,13 @@ public class FileServiceImpl implements FileService {
 
     private String getAbsolutePath(FileMetadata fileMetadata) {
         String path = fileMetadata.getFilePath().getPathString();
-        String filenameWithExtension = fileMetadata.getFileInfo().getFilenameWithExtension();
+        String fileWitServiceExtension = fileMetadata.getFileInfo().getFilenameWithExtension();
+        String filename = filenameUtils.getFilenameWithoutServiceExtension(fileWitServiceExtension);
 
-        return path + filenameWithExtension;
+        return path + filename;
+    }
+
+    private boolean isFolder(FileMetadata fileMetadata) {
+        return "folder".equals(fileMetadata.getFileInfo().getExtension());
     }
 }

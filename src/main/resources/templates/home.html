@@ -135,52 +135,51 @@
                                 </li>
                             </ul>
 
-                            <div th:if="${fileInfo.extension == 'folder'}">
-                                <a class="btn btn-outline-success mt-1"
+
+                            <div class="btn-group">
+
+                                <a class="btn btn-outline-success mt" th:if="${fileInfo.extension == 'folder'}"
                                    th:href="@{/home(path=${FilesContainer.getPath().getPathString()} + ${fileInfo.filename} + '/')}"
                                    role="button">Open</a>
-                            </div>
 
-                            <div th:unless="${fileInfo.extension == 'folder'}">
 
-                                <div class="btn-group">
-                                    <a class="btn btn-outline-success"
-                                       th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.filename}, extension =${fileInfo.extension})}"
-                                       role="button">Download</a>
+                                <a class="btn btn-outline-success mt" th:unless="${fileInfo.extension == 'folder'}"
+                                   th:href="@{/file/download(path=${FilesContainer.getPath().getPathString()}, filename=${fileInfo.filename}, extension =${fileInfo.extension})}"
+                                   role="button">Download</a>
 
-                                    <button type="button"
-                                            class="btn btn-success dropdown-toggle dropdown-toggle-split"
-                                            data-bs-toggle="dropdown" aria-expanded="false">
-                                        <span class="visually-hidden">Toggle Dropdown</span>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <form th:action="@{/file/delete}" th:method="delete"
-                                                  th:object="${FileMetadata}">
 
-                                                <input type="hidden" name="fileInfo.filename"
-                                                       th:value="${fileInfo.filename}"/>
+                                <button type="button"
+                                        class="btn btn-success dropdown-toggle dropdown-toggle-split"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <form th:action="@{/file/delete}" th:method="delete"
+                                              th:object="${FileMetadata}">
 
-                                                <input type="hidden" name="fileInfo.extension"
-                                                       th:value="${fileInfo.extension}"/>
+                                            <input type="hidden" name="fileInfo.filename"
+                                                   th:value="${fileInfo.filename}"/>
 
-                                                <input type="hidden" name="filePath.pathString"
-                                                       th:value="${FilesContainer.getPath().getPathString()}"/>
+                                            <input type="hidden" name="fileInfo.extension"
+                                                   th:value="${fileInfo.extension}"/>
 
-                                                <button class="dropdown-item" type="submit">Delete</button>
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <button class="rename-button dropdown-item" data-bs-target="#renameModal"
-                                                    data-bs-toggle="modal"
-                                                    th:attr="data-file-name=${fileInfo.filename},
+                                            <input type="hidden" name="filePath.pathString"
+                                                   th:value="${FilesContainer.getPath().getPathString()}"/>
+
+                                            <button class="dropdown-item" type="submit">Delete</button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <button class="rename-button dropdown-item" data-bs-target="#renameModal"
+                                                data-bs-toggle="modal"
+                                                th:attr="data-file-name=${fileInfo.filename},
                                                              data-file-ext=${fileInfo.extension},
                                                              data-path=${FilesContainer.getPath().getPathString()}">
-                                                Rename
-                                            </button>
-                                        </li>
-                                    </ul>
-                                </div>
+                                            Rename
+                                        </button>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
                     </div>

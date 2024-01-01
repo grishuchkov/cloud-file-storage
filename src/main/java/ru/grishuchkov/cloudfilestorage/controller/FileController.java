@@ -83,7 +83,11 @@ public final class FileController {
 
         fileService.rename(fileMetadata);
 
-        return "redirect:/home";
+        String path = fileMetadata.getFilePath().getPathString();
+        if (path.isEmpty()) {
+            return "redirect:/home";
+        }
+        return "redirect:/home?path=" + UriUtils.encodePath(path, "UTF-8");
     }
 
 
