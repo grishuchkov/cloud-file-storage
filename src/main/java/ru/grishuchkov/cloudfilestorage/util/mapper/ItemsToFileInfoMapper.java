@@ -4,7 +4,7 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
-import ru.grishuchkov.cloudfilestorage.util.FilenameUtils;
+import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemsToFileInfoMapper {
 
-    private final FilenameUtils filenameUtils;
+    private final FileUtils fileUtils;
 
     public List<FileInfo> toFile(List<Item> items) {
         List<FileInfo> fileInfos = new ArrayList<>(items.size());
@@ -22,8 +22,8 @@ public class ItemsToFileInfoMapper {
         for (Item item : items) {
             String nameWithPathAndExtension = item.objectName();
 
-            String extension = filenameUtils.getExtension(nameWithPathAndExtension);
-            String filename = filenameUtils.getFilename(nameWithPathAndExtension);
+            String extension = fileUtils.getExtension(nameWithPathAndExtension);
+            String filename = fileUtils.getFilename(nameWithPathAndExtension);
 
             FileInfo fileInfo = createFile(filename, extension);
             fileInfos.add(fileInfo);

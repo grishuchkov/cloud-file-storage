@@ -89,12 +89,11 @@ public class FileRepository {
 
     @SneakyThrows
     private Boolean isBucketExists(String bucketName) {
-        boolean found = minioClient.bucketExists(BucketExistsArgs
+        return minioClient.bucketExists(BucketExistsArgs
                 .builder()
                 .bucket(bucketName)
                 .build()
         );
-        return found;
     }
 
     @SneakyThrows
