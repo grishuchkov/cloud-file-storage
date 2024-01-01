@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class FilenameUtils {
+public class FileUtils {
 
     public String getExtension(String filename) {
         int indexOfDot = filename.lastIndexOf(".");
@@ -56,5 +56,10 @@ public class FilenameUtils {
         }
 
         return filenameWithExtension.substring(0, indexOfDot);
+    }
+
+    public boolean isValidPath(String path){
+        String regex = "[^<>#:;,?\\\\\"*|]+$";
+        return path.matches(regex);
     }
 }

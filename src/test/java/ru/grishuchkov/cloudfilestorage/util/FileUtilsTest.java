@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class FilenameUtilsTest {
+class FileUtilsTest {
 
-    private final FilenameUtils filenameUtils = new FilenameUtils();
+    private final FileUtils fileUtils = new FileUtils();
 
     @Test
     void getExtension() {
@@ -14,9 +14,9 @@ class FilenameUtilsTest {
         String stringWithFolderExtension = "hello/kitty/mum/";
         String stringWithNoneExtension = "hello/kitty/mum";
 
-        String fileExtension = filenameUtils.getExtension(stringWithFilenameExtension);
-        String folderExtension = filenameUtils.getExtension(stringWithFolderExtension);
-        String noneExtension = filenameUtils.getExtension(stringWithNoneExtension);
+        String fileExtension = fileUtils.getExtension(stringWithFilenameExtension);
+        String folderExtension = fileUtils.getExtension(stringWithFolderExtension);
+        String noneExtension = fileUtils.getExtension(stringWithNoneExtension);
 
         System.out.println(fileExtension);
         assertEquals("png", fileExtension);
@@ -32,9 +32,9 @@ class FilenameUtilsTest {
         String simplePath = "logo.psd";
         String folderPath = "hello/kitty/logo/";
 
-        String filenameFromDifficultPath = filenameUtils.getFilename(difficultPath);
-        String filenameFromSimplePath = filenameUtils.getFilename(simplePath);
-        String filenameFromFolderPath = filenameUtils.getFilename(folderPath);
+        String filenameFromDifficultPath = fileUtils.getFilename(difficultPath);
+        String filenameFromSimplePath = fileUtils.getFilename(simplePath);
+        String filenameFromFolderPath = fileUtils.getFilename(folderPath);
 
         System.out.println(filenameFromDifficultPath);
         System.out.println(filenameFromSimplePath);
@@ -51,9 +51,9 @@ class FilenameUtilsTest {
         String none = "logo.none";
         String defaultPath = "logo.psd";
 
-        String folderExtension = filenameUtils.getFilenameWithoutServiceExtension(folder);
-        String noneExtension = filenameUtils.getFilenameWithoutServiceExtension(none);
-        String defaultExtension = filenameUtils.getFilenameWithoutServiceExtension(defaultPath);
+        String folderExtension = fileUtils.getFilenameWithoutServiceExtension(folder);
+        String noneExtension = fileUtils.getFilenameWithoutServiceExtension(none);
+        String defaultExtension = fileUtils.getFilenameWithoutServiceExtension(defaultPath);
 
         assertEquals("logo", folderExtension);
         assertEquals("logo", noneExtension);
