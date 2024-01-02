@@ -13,6 +13,7 @@ import ru.grishuchkov.cloudfilestorage.repository.UserRepository;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
+import ru.grishuchkov.cloudfilestorage.util.validate.FileValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,23 +22,28 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
-    private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final FileRepository fileRepository;
 
     private final FileUtils fileUtils;
+    private final FileValidator fileValidator;
+
     private final ItemsToFileInfoMapper itemsToFileInfoMapper;
 
     @Override
     public void save(@NotNull UploadFiles files) {
         List<MultipartFile> uploadedFiles = files.getFiles();
-        String userBucket = getUserBucketByUsername(files.getOwnerUsername());
+        String userBucket = getUserBucket(files.getOwnerUsername());
 
         for (MultipartFile file : uploadedFiles) {
             validateFilename(file.getOriginalFilename());
         }
 
+        doSave(uploadedFiles, userBucket);
+    }
+
+    private void doSave(List<MultipartFile> uploadedFiles, String userBucket) {
         try {
             fileRepository.save(uploadedFiles, userBucket);
         } catch (Exception e) {
@@ -46,17 +52,17 @@ public class FileServiceImpl implements FileService {
     }
 
     private void validateFilename(String filename) {
-        if (!fileUtils.isValidPath(filename)) {
-            throw new RuntimeException("File has bad symbols");
+        if (!fileUtils.isValidPathAndFilename(filename)) {
+            throw new RuntimeException("File has bad symbols: " + filename);
         }
     }
 
     @Override
     public void delete(@NotNull FileMetadata fileMetadata) {
-        String userBucket = getUserBucketByUsername(fileMetadata.getOwnerUsername());
+        String userBucket = getUserBucket(fileMetadata.getOwnerUsername());
         String absolutePath = getAbsolutePath(fileMetadata);
 
-        if (isFolder(fileMetadata)) {
+        if (fileUtils.isFolder(fileMetadata)) {
             List<String> paths = getPathsToAllFilesInDirectory(absolutePath, userBucket);
 
             for (String path : paths) {
@@ -77,19 +83,18 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void rename(@NotNull FileMetadataForRename fileMetadata) {
-        String userBucket = getUserBucketByUsername(fileMetadata.getOwnerUsername());
+        String userBucket = getUserBucket(fileMetadata.getOwnerUsername());
 
         String newFilenameWithExtension = fileMetadata.getNewFilenameWithExtension();
         String oldAbsolutePath = getAbsolutePath(fileMetadata);
         String newAbsolutePath = fileMetadata.getFilePath().getPathString() + newFilenameWithExtension;
 
-        if (isFolder(fileMetadata)) {
+        if (fileUtils.isFolder(fileMetadata)) {
             if (fileUtils.hasExtension(newFilenameWithExtension)) {
                 throw new RuntimeException("Folder can't have extension");
             }
 
             List<String> objectsPaths = getPathsToAllFilesInDirectory(oldAbsolutePath, userBucket);
-
             for (String absoluteObjectPath : objectsPaths) {
                 String[] splitPath = absoluteObjectPath.split(oldAbsolutePath);
                 String usefulPartOfOldPath = splitPath[splitPath.length - 1];
@@ -130,7 +135,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public byte[] downloadFile(@NotNull FileMetadata fileMetadata) {
-        String userBucket = getUserBucketByUsername(fileMetadata.getOwnerUsername());
+        String userBucket = getUserBucket(fileMetadata.getOwnerUsername());
         String absolutePath = getAbsolutePath(fileMetadata);
 
         try {
@@ -142,7 +147,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FilesContainer getFilesInfoOfUser(String path, String ownerUsername) {
-        String userBucket = getUserBucketByUsername(ownerUsername);
+        String userBucket = getUserBucket(ownerUsername);
 
         List<Item> itemsFromBucket = new ArrayList<>();
         try {
@@ -158,17 +163,8 @@ public class FileServiceImpl implements FileService {
                 .build();
     }
 
-
-    private String getUserBucketByUsername(String username) {
-        User user = userRepository.findUserByLogin(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return getUserBucketName(user);
-    }
-
-    private String getUserBucketName(User user) {
-        Long userId = user.getId();
-        return String.format(BUCKET_NAME_TEMPLATE, userId);
+    private String getUserBucket(String username) {
+        return userService.getUserBucket(username);
     }
 
     private String getAbsolutePath(FileMetadata fileMetadata) {
@@ -177,9 +173,5 @@ public class FileServiceImpl implements FileService {
         String filename = fileUtils.getFilenameWithoutServiceExtension(fileWitServiceExtension);
 
         return path + filename;
-    }
-
-    private boolean isFolder(FileMetadata fileMetadata) {
-        return "folder".equals(fileMetadata.getFileInfo().getExtension());
     }
 }

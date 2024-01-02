@@ -24,6 +24,8 @@ public final class UserService implements UserDetailsService {
     private final UserRegisterMapper userRegisterMapper;
     private final PasswordEncoder passwordEncoder;
 
+    private static final String BUCKET_NAME_TEMPLATE = "user-%d-files";
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = getUserByUsername(username);
@@ -53,5 +55,12 @@ public final class UserService implements UserDetailsService {
         user.addRole(Role.USER_ROLE);
 
         userRepository.save(user);
+    }
+
+    public String getUserBucket(String username){
+        User user = userRepository.findUserByLogin(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return String.format(BUCKET_NAME_TEMPLATE, user.getId());
     }
 }

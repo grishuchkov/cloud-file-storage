@@ -1,6 +1,7 @@
 package ru.grishuchkov.cloudfilestorage.util;
 
 import org.springframework.stereotype.Component;
+import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
 
 import java.util.Arrays;
 import java.util.List;
@@ -58,8 +59,19 @@ public class FileUtils {
         return filenameWithExtension.substring(0, indexOfDot);
     }
 
-    public boolean isValidPath(String path){
-        String regex = "[^<>#:;,?\\\\\"*|]+$";
+    public String getFilenameWithExtension(String nameWithPathAndExtension){
+        String filename = getFilename(nameWithPathAndExtension);
+        String extension = getExtension(nameWithPathAndExtension);
+
+        return filename + "." + extension;
+    }
+
+    public boolean isValidPathAndFilename(String path){
+        String regex = "[^<>#:;?\\\\\"*|]+$";
         return path.matches(regex);
+    }
+
+    public boolean isFolder(FileMetadata fileMetadata) {
+        return "folder".equals(fileMetadata.getFileInfo().getExtension());
     }
 }

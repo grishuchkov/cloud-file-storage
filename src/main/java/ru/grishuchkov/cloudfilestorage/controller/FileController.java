@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriUtils;
 import ru.grishuchkov.cloudfilestorage.dto.*;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
+import ru.grishuchkov.cloudfilestorage.util.validate.FileValidator;
 
 import java.nio.charset.StandardCharsets;
 
@@ -24,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 public final class FileController {
 
     private final FileService fileService;
+    private final FileValidator fileValidator;
 
     @GetMapping("/download")
     public ResponseEntity<Resource> uploadFile(@RequestParam(value = "path", defaultValue = "") String path,
@@ -81,6 +83,7 @@ public final class FileController {
         }
         fileMetadata.setOwnerUsername(getUserDetailsUsername(userDetails));
 
+        fileValidator.validate(fileMetadata);
         fileService.rename(fileMetadata);
 
         String path = fileMetadata.getFilePath().getPathString();
