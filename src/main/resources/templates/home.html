@@ -79,9 +79,20 @@
 
 
 <div th:if="${#authorization.expression('isAuthenticated()')}">
+
     <div class="container pt-3">
 
-        <div class="pe-2" th:replace="~{breadcrums :: div}"></div>
+
+
+        <th:block th:if="${error}">
+            <div class="row">
+                <div th:text="${error}" class="alert alert-danger col-md-6 offset-md-3 text-center">
+                    Ошибка
+                </div>
+            </div>
+        </th:block>
+
+        <div class="pe-3" th:replace="~{breadcrums :: div}"></div>
 
         <div class="row row-cols-xxl-4 row-cols-xl-3 row-cols-md-2 row-cols-sm-1 row-cols-1  g-4">
 
