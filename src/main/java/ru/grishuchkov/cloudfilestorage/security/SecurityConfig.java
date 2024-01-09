@@ -1,4 +1,4 @@
-package ru.grishuchkov.cloudfilestorage.config;
+package ru.grishuchkov.cloudfilestorage.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +40,7 @@ public class SecurityConfig {
                                 .loginPage("/login")
                                 .defaultSuccessUrl("/home", true)
                                 .usernameParameter("login")
+                                .failureHandler(new AuthExceptionHandler())
                         )
                 .logout
                         (logout -> logout

@@ -1,4 +1,4 @@
-package ru.grishuchkov.cloudfilestorage.controller;
+package ru.grishuchkov.cloudfilestorage.security;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller
-public class AuthController {
+public final class AuthController {
 
     private final UserService userService;
 
@@ -32,6 +32,7 @@ public class AuthController {
     @GetMapping("/register")
     public String getRegisterPage(Model model,
                                   @AuthenticationPrincipal UserDetails principal) {
+
         if(isAuthenticated(principal)){
             return "redirect:/home";
         }
