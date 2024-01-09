@@ -7,13 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.grishuchkov.cloudfilestorage.dto.*;
-import ru.grishuchkov.cloudfilestorage.entity.User;
 import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
-import ru.grishuchkov.cloudfilestorage.repository.UserRepository;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
-import ru.grishuchkov.cloudfilestorage.util.validate.FileValidator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +18,12 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FileServiceImpl implements FileService {
+public final class FileServiceImpl implements FileService {
 
     private final UserService userService;
     private final FileRepository fileRepository;
 
     private final FileUtils fileUtils;
-    private final FileValidator fileValidator;
 
     private final ItemsToFileInfoMapper itemsToFileInfoMapper;
 
@@ -35,10 +31,6 @@ public class FileServiceImpl implements FileService {
     public void save(@NotNull UploadFiles files) {
         List<MultipartFile> uploadedFiles = files.getFiles();
         String userBucket = getUserBucket(files.getOwnerUsername());
-
-        for (MultipartFile file : uploadedFiles) {
-            validateFilename(file.getOriginalFilename());
-        }
 
         doSave(uploadedFiles, userBucket);
     }
@@ -48,12 +40,6 @@ public class FileServiceImpl implements FileService {
             fileRepository.save(uploadedFiles, userBucket);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
-        }
-    }
-
-    private void validateFilename(String filename) {
-        if (!fileUtils.isValidPathAndFilename(filename)) {
-            throw new RuntimeException("File has bad symbols: " + filename);
         }
     }
 
@@ -90,22 +76,16 @@ public class FileServiceImpl implements FileService {
         String newAbsolutePath = fileMetadata.getFilePath().getPathString() + newFilenameWithExtension;
 
         if (fileUtils.isFolder(fileMetadata)) {
-            if (fileUtils.hasExtension(newFilenameWithExtension)) {
-                throw new RuntimeException("Folder can't have extension");
-            }
-
             List<String> objectsPaths = getPathsToAllFilesInDirectory(oldAbsolutePath, userBucket);
             for (String absoluteObjectPath : objectsPaths) {
                 String[] splitPath = absoluteObjectPath.split(oldAbsolutePath);
                 String usefulPartOfOldPath = splitPath[splitPath.length - 1];
                 String newAbsoluteObjectPath = newAbsolutePath + usefulPartOfOldPath;
-
                 doRename(absoluteObjectPath, newAbsoluteObjectPath, userBucket);
             }
-            return;
+        } else {
+            doRename(oldAbsolutePath, newAbsolutePath, userBucket);
         }
-
-        doRename(oldAbsolutePath, newAbsolutePath, userBucket);
     }
 
     @NotNull

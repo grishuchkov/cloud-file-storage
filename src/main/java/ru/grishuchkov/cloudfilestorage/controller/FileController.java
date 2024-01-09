@@ -12,8 +12,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriUtils;
 import ru.grishuchkov.cloudfilestorage.dto.*;
+import ru.grishuchkov.cloudfilestorage.exception.FileValidateException;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.validate.FileValidator;
 
@@ -28,10 +31,10 @@ public final class FileController {
     private final FileValidator fileValidator;
 
     @GetMapping("/download")
-    public ResponseEntity<Resource> uploadFile(@RequestParam(value = "path", defaultValue = "") String path,
-                                               @RequestParam(value = "filename") String filename,
-                                               @RequestParam(value = "extension") String extension,
-                                               @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<Resource> download(@RequestParam(value = "path", defaultValue = "") String path,
+                                             @RequestParam(value = "filename") String filename,
+                                             @RequestParam(value = "extension") String extension,
+                                             @AuthenticationPrincipal UserDetails userDetails) {
         if (!isAuthenticated(userDetails)) {
             throw new AccessDeniedException("User is not authenticated");
         }
@@ -76,36 +79,52 @@ public final class FileController {
     }
 
     @PostMapping("/rename")
-    public String renameFile(@ModelAttribute("FileMetadataForRename")FileMetadataForRename fileMetadata,
-                             @AuthenticationPrincipal UserDetails userDetails){
+    public RedirectView rename(@ModelAttribute("FileMetadataForRename") FileMetadataForRename fileMetadata,
+                               @AuthenticationPrincipal UserDetails userDetails,
+                               RedirectAttributes redirectAttributes) {
+
         if (!isAuthenticated(userDetails)) {
             throw new AccessDeniedException("User is not authenticated");
         }
         fileMetadata.setOwnerUsername(getUserDetailsUsername(userDetails));
+        String path = fileMetadata.getFilePath().getPathString();
 
-        fileValidator.validate(fileMetadata);
+        try {
+            fileValidator.validate(fileMetadata);
+        } catch (FileValidateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return new RedirectView("/home?path=" + UriUtils.encodePath(path, "UTF-8"), true);
+        }
+
         fileService.rename(fileMetadata);
 
-        String path = fileMetadata.getFilePath().getPathString();
         if (path.isEmpty()) {
-            return "redirect:/home";
+            return new RedirectView("/home");
         }
-        return "redirect:/home?path=" + UriUtils.encodePath(path, "UTF-8");
+        return new RedirectView("/home?path=" + UriUtils.encodePath(path, "UTF-8"));
     }
 
 
     @PostMapping("/upload")
-    public String upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
-                         @AuthenticationPrincipal UserDetails userDetails) {
+    public RedirectView upload(@ModelAttribute("UploadFiles") UploadFiles uploadFiles,
+                               @AuthenticationPrincipal UserDetails userDetails,
+                               RedirectAttributes redirectAttributes) {
 
         if (!isAuthenticated(userDetails)) {
             throw new AccessDeniedException("User is not authenticated");
         }
-
         uploadFiles.setOwnerUsername(getUserDetailsUsername(userDetails));
+
+        try {
+            fileValidator.validate(uploadFiles);
+        } catch (FileValidateException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return new RedirectView("/home", true);
+        }
+
         fileService.save(uploadFiles);
 
-        return "redirect:/home";
+        return new RedirectView("/home");
     }
 
     private boolean isAuthenticated(UserDetails userDetails) {
