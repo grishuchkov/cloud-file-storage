@@ -74,4 +74,14 @@ public class FileUtils {
     public boolean isFolder(FileMetadata fileMetadata) {
         return "folder".equals(fileMetadata.getFileInfo().getExtension());
     }
+
+    public String getPathWithoutFilename(String absolutePath){
+        int indexOfSlash = absolutePath.lastIndexOf("/");
+
+        if(indexOfSlash == -1){
+            return "";
+        }
+
+        return absolutePath.substring(0, indexOfSlash + 1);
+    }
 }

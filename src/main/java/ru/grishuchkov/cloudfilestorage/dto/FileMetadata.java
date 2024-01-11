@@ -17,8 +17,14 @@ public class FileMetadata {
         this.ownerUsername = ownerUsername;
     }
 
+    public FileMetadata(FileInfo fileInfo, FilePath filePath) {
+        this.fileInfo = fileInfo;
+        this.filePath = filePath;
+    }
+
     public FileMetadata() {
         this.fileInfo = new FileInfo();
         this.filePath = new FilePath();
     }
+
 }
