@@ -27,7 +27,7 @@ public class FileValidator {
 
     public <T extends FileMetadata> void validate(T fileMetadata) {
 
-        String userBucket = userService.getUserBucket(fileMetadata.getOwnerUsername());
+        String userBucket = userService.getUserBucketOrElseThrow(fileMetadata.getOwnerUsername());
 
         if (isFileMetadataForRename(fileMetadata)) {
             FileMetadataForRename file = (FileMetadataForRename) fileMetadata;

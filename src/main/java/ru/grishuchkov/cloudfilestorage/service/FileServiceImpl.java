@@ -144,7 +144,7 @@ public final class FileServiceImpl implements FileService {
     }
 
     private String getUserBucket(String username) {
-        return userService.getUserBucket(username);
+        return userService.getUserBucketOrElseThrow(username);
     }
 
     private String getAbsolutePath(FileMetadata fileMetadata) {

@@ -57,7 +57,7 @@ public final class UserService implements UserDetailsService {
         userRepository.save(user);
     }
 
-    public String getUserBucket(String username){
+    public String getUserBucketOrElseThrow(String username){
         User user = userRepository.findUserByLogin(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
