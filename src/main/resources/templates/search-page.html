@@ -12,10 +12,26 @@
 <body>
 
 <div class="container">
-    <div th:each="file : ${FoundFiles}" class="list-group">
-        <button type="button" class="list-group-item list-group-item-action"
-                th:text="${file.filePath.pathString} + ${file.fileInfo.getFilenameWithExtension()}">A second item
-        </button>
+
+    <h4 class="text-center pt-3" th:if="${FoundFiles.isEmpty()}">
+        No results found
+    </h4>
+
+    <div th:each="file : ${FoundFiles}" class="list-group pt-3">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="max-width: 80%" th:text="${file.filePath.pathString} + ${file.fileInfo.getFilenameWithExtension()}">An item</span>
+            <div>
+                <a role="button" class="btn btn-success ms-2 my-2"
+                   th:href="@{/file/download(path=${file.filePath.pathString},
+                   filename=${file.fileInfo.filename},
+                   extension =${file.fileInfo.extension})}"> Download
+                </a>
+
+                <a role="button" class="btn btn-success ms-2 my-2"
+                   th:href="@{/home(path=${file.filePath.pathString})}"> Go to
+                </a>
+            </div>
+        </li>
     </div>
 </div>
 
