@@ -21,7 +21,7 @@ public class SearchPageController {
     private final FileSearchService fileSearchService;
 
     @GetMapping
-    public String getSearchPage(@RequestParam(name = "query") String nameForSearch,
+    public String getSearchPage(@RequestParam(name = "query", defaultValue = "") String nameForSearch,
                                 @AuthenticationPrincipal UserDetails userDetails,
                                 Model model) {
 

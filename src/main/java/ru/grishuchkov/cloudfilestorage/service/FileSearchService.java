@@ -4,11 +4,9 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
 import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
-import ru.grishuchkov.cloudfilestorage.dto.FilePath;
 import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
-import ru.grishuchkov.cloudfilestorage.util.FileUtils;
+import ru.grishuchkov.cloudfilestorage.util.mapper.PathStringToFileMetadataMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,39 +18,27 @@ public class FileSearchService {
 
     private final FileRepository fileRepository;
     private final UserService userService;
-    private final FileUtils fileUtils;
 
+    private final PathStringToFileMetadataMapper pathToFileMetadataMapper;
 
-    private static final String ROOT = "";
+    private static final String ROOT_DIRECTORY_PATH = "";
 
     public List<FileMetadata> searchFiles(String username, String searchName) {
         String userBucket = userService.getUserBucketOrElseThrow(username);
 
-        List<String> fileItems = getItems(userBucket).stream()
+        List<String> suitableAbsoluteFilePaths = getItems(userBucket).stream()
                 .map(Item::objectName)
-                .filter(file -> file.contains(searchName))
+                .filter(objectName -> objectName.toLowerCase().contains(searchName.toLowerCase()))
                 .toList();
 
-        List<FileMetadata> fileMetadataList = new ArrayList<>();
-
-        for (String file : fileItems) {
-            FileInfo fileInfo = FileInfo.builder()
-                    .filename(fileUtils.getFilename(file))
-                    .extension(fileUtils.getExtension(file))
-                    .build();
-
-            FilePath filePath = new FilePath(fileUtils.getPathWithoutFilename(file));
-
-            fileMetadataList.add(new FileMetadata(fileInfo, filePath));
-        }
-
-        return fileMetadataList;
+        return pathToFileMetadataMapper.toMetadata(suitableAbsoluteFilePaths);
     }
 
     private List<Item> getItems(String userBucket) {
         List<Item> objects = new ArrayList<>();
         try {
-            objects = fileRepository.getListObjects(ROOT, userBucket, true);
+            objects = fileRepository
+                    .getListObjects(ROOT_DIRECTORY_PATH, userBucket, true);
         } catch (Exception exception) {
             log.error(exception.getMessage());
         }
