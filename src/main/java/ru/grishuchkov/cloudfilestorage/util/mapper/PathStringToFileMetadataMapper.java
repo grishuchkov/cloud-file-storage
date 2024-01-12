@@ -16,7 +16,7 @@ public class PathStringToFileMetadataMapper {
 
     private final FileUtils fileUtils;
 
-    public List<FileMetadata> toMetadata(List<String> paths){
+    public List<FileMetadata> toMetadataWithoutOwner(List<String> paths){
         List<FileMetadata> fileMetadataList = new ArrayList<>();
 
         for (String path : paths) {

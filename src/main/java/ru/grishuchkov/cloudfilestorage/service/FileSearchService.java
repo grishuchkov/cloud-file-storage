@@ -31,7 +31,7 @@ public class FileSearchService {
                 .filter(objectName -> objectName.toLowerCase().contains(searchName.toLowerCase()))
                 .toList();
 
-        return pathToFileMetadataMapper.toMetadata(suitableAbsoluteFilePaths);
+        return pathToFileMetadataMapper.toMetadataWithoutOwner(suitableAbsoluteFilePaths);
     }
 
     private List<Item> getItems(String userBucket) {
