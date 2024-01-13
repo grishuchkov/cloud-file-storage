@@ -59,12 +59,6 @@ public class FileUtils {
         return filenameWithExtension.substring(0, indexOfDot);
     }
 
-    public String getFilenameWithExtension(String nameWithPathAndExtension){
-        String filename = getFilename(nameWithPathAndExtension);
-        String extension = getExtension(nameWithPathAndExtension);
-
-        return filename + "." + extension;
-    }
 
     public boolean isValidPathAndFilename(String path){
         String regex = "[^<>#:;?\\\\\"*|]+$";
