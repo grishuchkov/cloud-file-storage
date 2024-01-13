@@ -1,7 +1,7 @@
 package ru.grishuchkov.cloudfilestorage.util;
 
 import org.springframework.stereotype.Component;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 
 import java.util.Arrays;
 import java.util.List;

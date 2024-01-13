@@ -16,6 +16,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 import org.springframework.web.util.UriUtils;
 import ru.grishuchkov.cloudfilestorage.dto.*;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileInfo;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadataForRename;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FilePath;
 import ru.grishuchkov.cloudfilestorage.exception.FileValidateException;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.validate.FileValidator;
@@ -25,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 @Controller
 @RequestMapping("/file")
 @RequiredArgsConstructor
-public final class FileController {
+public final class FileOperationsController {
 
     private final FileService fileService;
     private final FileValidator fileValidator;

@@ -2,9 +2,9 @@ package ru.grishuchkov.cloudfilestorage.util.mapper;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
-import ru.grishuchkov.cloudfilestorage.dto.FilePath;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileInfo;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FilePath;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 
 import java.util.ArrayList;

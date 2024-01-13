@@ -4,7 +4,7 @@ import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
 import ru.grishuchkov.cloudfilestorage.util.mapper.PathStringToFileMetadataMapper;
 

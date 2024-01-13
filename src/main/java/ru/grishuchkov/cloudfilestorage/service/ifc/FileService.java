@@ -1,7 +1,7 @@
 package ru.grishuchkov.cloudfilestorage.service.ifc;
 
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadataForRename;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadataForRename;
 import ru.grishuchkov.cloudfilestorage.dto.FilesContainer;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 

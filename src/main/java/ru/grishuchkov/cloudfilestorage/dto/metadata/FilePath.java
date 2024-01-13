@@ -1,4 +1,4 @@
-package ru.grishuchkov.cloudfilestorage.dto;
+package ru.grishuchkov.cloudfilestorage.dto.metadata;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

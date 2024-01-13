@@ -7,6 +7,10 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.grishuchkov.cloudfilestorage.dto.*;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileInfo;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadataForRename;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FilePath;
 import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
@@ -18,7 +22,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public final class FileServiceImpl implements FileService {
+public final class FileOperationsService implements FileService {
 
     private final UserService userService;
     private final FileRepository fileRepository;

@@ -1,6 +1,7 @@
-package ru.grishuchkov.cloudfilestorage.dto;
+package ru.grishuchkov.cloudfilestorage.dto.metadata;
 
 import lombok.*;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 
 @EqualsAndHashCode(callSuper = true)
 @Data

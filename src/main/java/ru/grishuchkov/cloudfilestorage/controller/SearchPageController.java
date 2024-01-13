@@ -8,7 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.grishuchkov.cloudfilestorage.dto.FileMetadata;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.service.FileSearchService;
 
 import java.util.List;

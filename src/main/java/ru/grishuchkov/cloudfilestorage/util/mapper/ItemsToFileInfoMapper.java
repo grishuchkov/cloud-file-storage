@@ -3,7 +3,7 @@ package ru.grishuchkov.cloudfilestorage.util.mapper;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.grishuchkov.cloudfilestorage.dto.FileInfo;
+import ru.grishuchkov.cloudfilestorage.dto.metadata.FileInfo;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 
 import java.util.ArrayList;
