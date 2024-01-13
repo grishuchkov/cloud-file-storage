@@ -30,7 +30,9 @@ dependencies {
 	implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
 	implementation("org.flywaydb:flyway-core")
 	implementation("io.minio:minio:8.5.7")
+
 	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testImplementation("org.assertj:assertj-core:3.25.1")
 
 	compileOnly("org.projectlombok:lombok")
 	runtimeOnly("org.postgresql:postgresql")
