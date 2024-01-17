@@ -1,6 +1,20 @@
 version: "3"
 
 services:
+
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=root
+      - REDIS_PORT=6379
+
+
   postgres:
     container_name: cloud-file-storage
     image: postgres:13-alpine
@@ -12,6 +26,7 @@ services:
       - "5440:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -30,4 +45,7 @@ volumes:
     driver: local
   minio-data:
     driver: local
+  redis:
+    driver: local
+
 
