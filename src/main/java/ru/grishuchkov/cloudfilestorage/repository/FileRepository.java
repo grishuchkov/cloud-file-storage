@@ -97,7 +97,7 @@ public class FileRepository {
     }
 
     @SneakyThrows
-    private void makeBucketIfNotExists(String bucketName) {
+    public void makeBucketIfNotExists(String bucketName) {
         if (!isBucketExists(bucketName)) {
             minioClient.makeBucket(MakeBucketArgs
                     .builder()
