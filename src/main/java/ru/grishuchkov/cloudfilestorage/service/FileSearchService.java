@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
-import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
+import ru.grishuchkov.cloudfilestorage.repository.MinIORepository;
 import ru.grishuchkov.cloudfilestorage.util.mapper.PathStringToFileMetadataMapper;
 
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FileSearchService {
 
-    private final FileRepository fileRepository;
+    private final MinIORepository minIORepository;
     private final UserService userService;
 
     private final PathStringToFileMetadataMapper pathToFileMetadataMapper;
@@ -37,7 +37,7 @@ public class FileSearchService {
     private List<Item> getItems(String userBucket) {
         List<Item> objects = new ArrayList<>();
         try {
-            objects = fileRepository
+            objects = minIORepository
                     .getListObjects(ROOT_DIRECTORY_PATH, userBucket, true);
         } catch (Exception exception) {
             log.error(exception.getMessage());

@@ -9,7 +9,7 @@ import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadataForRename;
 import ru.grishuchkov.cloudfilestorage.dto.UploadFiles;
 import ru.grishuchkov.cloudfilestorage.exception.FileValidateException;
-import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
+import ru.grishuchkov.cloudfilestorage.repository.MinIORepository;
 import ru.grishuchkov.cloudfilestorage.service.UserService;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 
@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class FileValidator {
 
-    private final FileRepository fileRepository;
+    private final MinIORepository minIORepository;
     private final FileUtils fileUtils;
     private final UserService userService;
 
@@ -84,7 +84,7 @@ public class FileValidator {
     private List<String> getListFilenamesFromDirectory(String path, String userBucket) {
         List<String> result = new ArrayList<>();
         try {
-            result = fileRepository
+            result = minIORepository
                     .getListObjects(path, userBucket, false)
                     .stream()
                     .map(Item::objectName)

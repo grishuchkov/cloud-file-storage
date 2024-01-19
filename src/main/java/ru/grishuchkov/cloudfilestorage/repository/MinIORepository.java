@@ -14,7 +14,7 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class FileRepository {
+public class MinIORepository {
 
     private final MinioClient minioClient;
 

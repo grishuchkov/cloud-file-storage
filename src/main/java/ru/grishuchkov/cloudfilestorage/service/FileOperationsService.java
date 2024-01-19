@@ -11,7 +11,7 @@ import ru.grishuchkov.cloudfilestorage.dto.metadata.FileInfo;
 import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadata;
 import ru.grishuchkov.cloudfilestorage.dto.metadata.FileMetadataForRename;
 import ru.grishuchkov.cloudfilestorage.dto.metadata.FilePath;
-import ru.grishuchkov.cloudfilestorage.repository.FileRepository;
+import ru.grishuchkov.cloudfilestorage.repository.MinIORepository;
 import ru.grishuchkov.cloudfilestorage.service.ifc.FileService;
 import ru.grishuchkov.cloudfilestorage.util.FileUtils;
 import ru.grishuchkov.cloudfilestorage.util.mapper.ItemsToFileInfoMapper;
@@ -25,7 +25,7 @@ import java.util.List;
 public final class FileOperationsService implements FileService {
 
     private final UserService userService;
-    private final FileRepository fileRepository;
+    private final MinIORepository minIORepository;
 
     private final FileUtils fileUtils;
 
@@ -41,7 +41,7 @@ public final class FileOperationsService implements FileService {
 
     private void doSave(List<MultipartFile> uploadedFiles, String userBucket) {
         try {
-            fileRepository.save(uploadedFiles, userBucket);
+            minIORepository.save(uploadedFiles, userBucket);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -65,7 +65,7 @@ public final class FileOperationsService implements FileService {
 
     private void doDelete(String path, String userBucket) {
         try {
-            fileRepository.delete(path, userBucket);
+            minIORepository.delete(path, userBucket);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -96,7 +96,7 @@ public final class FileOperationsService implements FileService {
     private List<String> getPathsToAllFilesInDirectory(String directoryPath, String userBucket) {
         List<String> filesPaths = new ArrayList<>();
         try {
-            filesPaths = fileRepository
+            filesPaths = minIORepository
                     .getListObjects(directoryPath, userBucket, true)
                     .stream()
                     .map(Item::objectName)
@@ -110,8 +110,8 @@ public final class FileOperationsService implements FileService {
 
     private void doRename(String oldAbsolutePath, String newAbsolutePath, String userBucket) {
         try {
-            fileRepository.copy(oldAbsolutePath, newAbsolutePath, userBucket);
-            fileRepository.delete(oldAbsolutePath, userBucket);
+            minIORepository.copy(oldAbsolutePath, newAbsolutePath, userBucket);
+            minIORepository.delete(oldAbsolutePath, userBucket);
         } catch (Exception exception) {
             log.error(exception.getMessage());
         }
@@ -123,7 +123,7 @@ public final class FileOperationsService implements FileService {
         String absolutePath = getAbsolutePath(fileMetadata);
 
         try {
-            return fileRepository.get(absolutePath, userBucket);
+            return minIORepository.get(absolutePath, userBucket);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
@@ -135,7 +135,7 @@ public final class FileOperationsService implements FileService {
 
         List<Item> itemsFromBucket = new ArrayList<>();
         try {
-            itemsFromBucket = fileRepository.getListObjects(path, userBucket, false);
+            itemsFromBucket = minIORepository.getListObjects(path, userBucket, false);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
